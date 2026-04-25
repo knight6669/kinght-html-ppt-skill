@@ -1126,6 +1126,17 @@
           const i = themes.indexOf(e.data.name);
           if (i >= 0) themeIdx = i;
           applyTheme(e.data.name);
+        } else if (e.data.type === 'notes-update' && typeof e.data.idx === 'number') {
+          const slide = slides[e.data.idx];
+          if (!slide) return;
+          let note = slide.querySelector('.notes, aside.notes, .speaker-notes');
+          if (!note) {
+            note = document.createElement('aside');
+            note.className = 'notes';
+            slide.appendChild(note);
+          }
+          note.innerHTML = e.data.html || '';
+          if (e.data.idx === idx) notes.innerHTML = note.innerHTML;
         }
       };
     }
@@ -1214,7 +1225,7 @@
       const currentTheme = root.getAttribute('data-theme') || (themes[themeIdx] || '');
       const presenterHTML = buildPresenterHTML(deckUrl, slideMeta, total, idx, CHANNEL_NAME, currentTheme);
 
-      presenterWin = window.open('', 'html-ppt-presenter', 'width=1280,height=820,menubar=no,toolbar=no');
+      presenterWin = window.open('', 'html-ppt-presenter', 'width=1500,height=920,menubar=no,toolbar=no');
       if (!presenterWin) {
         alert('请允许弹出窗口以使用演讲者视图');
         return;
@@ -1229,7 +1240,8 @@
       const deckUrlJSON = JSON.stringify(deckUrl);
       const channelJSON = JSON.stringify(channelName);
       const themeJSON = JSON.stringify(currentTheme || '');
-      const storageKey = 'html-ppt-presenter:' + location.pathname;
+      const storageKey = 'html-ppt-presenter:v2:' + location.pathname;
+      const notesStorageKey = 'html-ppt-presenter-notes:v1:' + location.pathname;
 
       // Build the document as a single template string for clarity
       return `<!DOCTYPE html>
@@ -1249,18 +1261,18 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
   }
   /* Stage: positioned area where cards live */
-  #stage { position: absolute; inset: 0; overflow: hidden; }
+  #stage { position: absolute; inset: 0 0 34px 0; overflow: hidden; }
 
   /* Magnetic card */
   .pcard {
     position: absolute;
     background: #0d1117;
     border: 1px solid rgba(255,255,255,.1);
-    border-radius: 12px;
+    border-radius: 8px;
     box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.02);
     display: flex; flex-direction: column;
     overflow: hidden;
-    min-width: 180px; min-height: 100px;
+    min-width: 220px; min-height: 120px;
     transition: box-shadow .2s, border-color .2s;
   }
   .pcard.dragging { box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 2px rgba(88,166,255,.5); border-color: #58a6ff; transition: none; z-index: 9999; }
@@ -1270,7 +1282,8 @@
   /* Card header (drag handle) */
   .pcard-head {
     display: flex; align-items: center; gap: 10px;
-    padding: 8px 12px;
+    height: 38px;
+    padding: 0 14px;
     background: rgba(255,255,255,.04);
     border-bottom: 1px solid rgba(255,255,255,.06);
     cursor: move;
@@ -1291,7 +1304,7 @@
   .pcard-preview .pcard-body { background: #000; }
   .pcard-preview iframe {
     position: absolute; top: 0; left: 0;
-    width: 1920px; height: 1080px;
+    width: 1600px; height: 1000px;
     border: none;
     transform-origin: top left;
     pointer-events: none;
@@ -1305,13 +1318,23 @@
 
   /* Notes card */
   .pcard-notes .pcard-body {
-    padding: 14px 18px;
+    padding: 26px 28px 32px;
     overflow-y: auto;
-    font-size: 18px; line-height: 1.75;
+    font-size: clamp(20px, 1.18vw, 28px); line-height: 1.8;
     color: #d0d7de;
     font-family: "Noto Sans SC", -apple-system, sans-serif;
+    outline: none;
+    caret-color: #f0883e;
   }
-  .pcard-notes .pcard-body p { margin: 0 0 .7em 0; }
+  .pcard-notes .pcard-body:focus {
+    background: linear-gradient(180deg, rgba(240,136,62,.055), transparent 34%);
+  }
+  .pcard-notes .pcard-body.is-empty::before {
+    content: attr(data-placeholder);
+    color: #6e7681;
+    font-style: italic;
+  }
+  .pcard-notes .pcard-body p { margin: 0 0 .86em 0; }
   .pcard-notes .pcard-body strong { color: #f0883e; }
   .pcard-notes .pcard-body em { color: #58a6ff; font-style: normal; }
   .pcard-notes .pcard-body code {
@@ -1319,15 +1342,24 @@
     background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 4px;
   }
   .pcard-notes .empty { color: #484f58; font-style: italic; }
+  .notes-edit-status {
+    font-size: 11px;
+    color: #6e7681;
+    letter-spacing: 0;
+    text-transform: none;
+    font-weight: 600;
+  }
+  .notes-edit-status.is-dirty { color: #f0883e; }
+  .notes-edit-status.is-saved { color: #3fb950; }
 
   /* Timer card */
   .pcard-timer .pcard-body {
     display: flex; flex-direction: column; gap: 14px;
-    padding: 18px 20px; justify-content: center;
+    padding: 30px 24px; justify-content: center;
   }
   .timer-display {
     font-family: "SF Mono", "JetBrains Mono", monospace;
-    font-size: 42px; font-weight: 700;
+    font-size: clamp(46px, 4.2vw, 76px); font-weight: 700;
     color: #3fb950;
     letter-spacing: .04em;
     line-height: 1;
@@ -1368,6 +1400,7 @@
     background: rgba(0,0,0,.6);
     backdrop-filter: blur(10px);
     border-top: 1px solid rgba(255,255,255,.08);
+    min-height: 34px;
     padding: 6px 16px;
     font-size: 11px; color: #8b949e;
     display: flex; gap: 18px; align-items: center;
@@ -1420,8 +1453,9 @@
     <div class="pcard-head" data-drag>
       <span class="pcard-dot"></span>
       <span class="pcard-title">SPEAKER SCRIPT · 逐字稿</span>
+      <span class="notes-edit-status" id="notes-status">editable</span>
     </div>
-    <div class="pcard-body" id="notes-body"></div>
+    <div class="pcard-body" id="notes-body" contenteditable="true" spellcheck="false" data-placeholder="Click here to edit speaker notes."></div>
     <div class="pcard-resize" data-resize></div>
   </div>
 
@@ -1461,6 +1495,7 @@
   var idx = ${startIdx};
   var deckUrl = ${deckUrlJSON};
   var STORAGE_KEY = ${JSON.stringify(storageKey)};
+  var NOTES_STORAGE_KEY = ${JSON.stringify(notesStorageKey)};
   var bc;
   try { bc = new BroadcastChannel(${channelJSON}); } catch(e) {}
 
@@ -1471,16 +1506,89 @@
   var nxtMeta = document.getElementById('nxt-meta');
   var timerDisplay = document.getElementById('timer-display');
   var timerCount = document.getElementById('timer-count');
+  var notesStatus = document.getElementById('notes-status');
+  var editedNotes = readEditedNotes();
+  var renderNotesLock = false;
+  var saveNotesTimer = 0;
+
+  function readEditedNotes() {
+    try {
+      var saved = localStorage.getItem(NOTES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    } catch(e) {
+      return {};
+    }
+  }
+  function getNoteHtml(n) {
+    return Object.prototype.hasOwnProperty.call(editedNotes, n) ? editedNotes[n] : (slideMeta[n] && slideMeta[n].notes) || '';
+  }
+  function setNotesStatus(text, cls) {
+    if (!notesStatus) return;
+    notesStatus.textContent = text;
+    notesStatus.className = 'notes-edit-status' + (cls ? ' ' + cls : '');
+  }
+  function renderNotes(n) {
+    renderNotesLock = true;
+    var html = getNoteHtml(n);
+    notesBody.innerHTML = html || '';
+    notesBody.classList.toggle('is-empty', !html);
+    setNotesStatus('editable', '');
+    renderNotesLock = false;
+  }
+  function saveCurrentNotes() {
+    if (renderNotesLock) return;
+    var html = notesBody.innerHTML || '';
+    editedNotes[idx] = html;
+    if (slideMeta[idx]) slideMeta[idx].notes = html;
+    notesBody.classList.toggle('is-empty', !html);
+    try { localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(editedNotes)); } catch(e) {}
+    if (bc) bc.postMessage({ type: 'notes-update', idx: idx, html: html });
+    setNotesStatus('saved', 'is-saved');
+  }
+  function scheduleNotesSave() {
+    if (renderNotesLock) return;
+    setNotesStatus('editing', 'is-dirty');
+    clearTimeout(saveNotesTimer);
+    saveNotesTimer = setTimeout(saveCurrentNotes, 360);
+  }
+  notesBody.addEventListener('input', scheduleNotesSave);
+  notesBody.addEventListener('blur', saveCurrentNotes);
 
   /* ===== Default card layout ===== */
   function defaultLayout() {
     var w = window.innerWidth;
-    var h = window.innerHeight - 36; /* leave room for hint bar */
+    var h = window.innerHeight - 34; /* leave room for hint bar */
+    var pad = 6;
+    var gap = 8;
+    var header = 38;
+    var availableW = Math.max(320, w - pad * 2);
+    var availableH = Math.max(480, h - pad * 2);
+    if (availableW < 980) {
+      var oneW = availableW;
+      var curHSmall = Math.min(availableH * 0.42, header + oneW / 1.6);
+      var nextHSmall = Math.min(availableH * 0.22, header + oneW / 1.6);
+      var timerHSmall = Math.max(160, availableH * 0.18);
+      return {
+        'card-cur':   { x: pad, y: pad, w: oneW, h: Math.round(curHSmall) },
+        'card-nxt':   { x: pad, y: Math.round(pad + curHSmall + gap), w: oneW, h: Math.round(nextHSmall) },
+        'card-notes': { x: pad, y: Math.round(pad + curHSmall + gap + nextHSmall + gap), w: oneW, h: Math.round(availableH - curHSmall - nextHSmall - timerHSmall - gap * 3) },
+        'card-timer': { x: pad, y: Math.round(h - pad - timerHSmall), w: oneW, h: Math.round(timerHSmall) }
+      };
+    }
+    var columnW = availableW - gap;
+    var leftW = Math.round(columnW * 0.62);
+    var rightW = columnW - leftW;
+    var curH = Math.round(header + leftW / 1.6);
+    curH = Math.max(360, Math.min(curH, availableH - gap - 230));
+    var timerH = availableH - curH - gap;
+    var nextH = Math.round(header + rightW / 1.6);
+    nextH = Math.max(260, Math.min(nextH, availableH - gap - 320));
+    var notesH = availableH - nextH - gap;
     return {
-      'card-cur':   { x: 16,        y: 16,            w: Math.round(w*0.55) - 24, h: Math.round(h*0.62) - 16 },
-      'card-nxt':   { x: Math.round(w*0.55) + 8, y: 16, w: w - Math.round(w*0.55) - 24, h: Math.round(h*0.42) - 16 },
-      'card-notes': { x: Math.round(w*0.55) + 8, y: Math.round(h*0.42) + 8, w: w - Math.round(w*0.55) - 24, h: h - Math.round(h*0.42) - 16 },
-      'card-timer': { x: 16,        y: Math.round(h*0.62) + 8, w: Math.round(w*0.55) - 24, h: h - Math.round(h*0.62) - 16 }
+      'card-cur':   { x: pad, y: pad, w: leftW, h: curH },
+      'card-timer': { x: pad, y: pad + curH + gap, w: leftW, h: timerH },
+      'card-nxt':   { x: pad + leftW + gap, y: pad, w: rightW, h: nextH },
+      'card-notes': { x: pad + leftW + gap, y: pad + nextH + gap, w: rightW, h: notesH }
     };
   }
 
@@ -1490,10 +1598,16 @@
       var el = document.getElementById(id);
       var l = layout[id];
       if (el && l) {
-        el.style.left = l.x + 'px';
-        el.style.top = l.y + 'px';
-        el.style.width = l.w + 'px';
-        el.style.height = l.h + 'px';
+        var maxW = Math.max(220, window.innerWidth - 12);
+        var maxH = Math.max(120, window.innerHeight - 46);
+        var ww = Math.max(220, Math.min(l.w, maxW));
+        var hh = Math.max(120, Math.min(l.h, maxH));
+        var xx = Math.max(0, Math.min(l.x, window.innerWidth - ww - 6));
+        var yy = Math.max(0, Math.min(l.y, window.innerHeight - hh - 40));
+        el.style.left = xx + 'px';
+        el.style.top = yy + 'px';
+        el.style.width = ww + 'px';
+        el.style.height = hh + 'px';
       }
     });
     rescaleAll();
@@ -1527,10 +1641,12 @@
     var body = iframe.parentElement;
     var cw = body.clientWidth, ch = body.clientHeight;
     if (!cw || !ch) return;
-    var s = Math.min(cw / 1920, ch / 1080);
+    var baseW = 1600;
+    var baseH = 1000;
+    var s = Math.min(cw / baseW, ch / baseH);
     iframe.style.transform = 'scale(' + s + ')';
     /* Center the scaled iframe in the body */
-    var sw = 1920 * s, sh = 1080 * s;
+    var sw = baseW * s, sh = baseH * s;
     iframe.style.left = Math.max(0, (cw - sw) / 2) + 'px';
     iframe.style.top = Math.max(0, (ch - sh) / 2) + 'px';
   }
@@ -1640,6 +1756,7 @@
    */
   function update(n) {
     n = Math.max(0, Math.min(total - 1, n));
+    if (n !== idx) saveCurrentNotes();
     idx = n;
 
     /* Current preview — postMessage (smooth) */
@@ -1666,8 +1783,7 @@
     }
 
     /* Notes */
-    var note = slideMeta[n].notes;
-    notesBody.innerHTML = note || '<span class="empty">（这一页还没有逐字稿）</span>';
+    renderNotes(n);
 
     /* Timer count */
     timerCount.textContent = (n + 1) + ' / ' + total;
@@ -1709,15 +1825,22 @@
   document.getElementById('btn-next').addEventListener('click', function(){ go(idx + 1); });
   document.getElementById('btn-reset').addEventListener('click', resetTimer);
   document.getElementById('reset-layout').addEventListener('click', function(){
-    if (confirm('恢复默认卡片布局？')) {
-      try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
-      applyLayout(defaultLayout());
-    }
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+    applyLayout(defaultLayout());
+    saveLayout();
   });
 
   /* ===== Keyboard ===== */
   document.addEventListener('keydown', function(e){
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var editing = e.target && e.target.closest && e.target.closest('#notes-body, [contenteditable="true"], textarea, input, select');
+    if (editing) {
+      if (e.key === 'Escape') {
+        editing.blur();
+        e.preventDefault();
+      }
+      return;
+    }
     switch(e.key) {
       case 'ArrowRight': case ' ': case 'PageDown': go(idx + 1); e.preventDefault(); break;
       case 'ArrowLeft':  case 'PageUp':   go(idx - 1); e.preventDefault(); break;
@@ -1741,7 +1864,7 @@
   iframeCur.src = deckUrl + '?preview=' + (idx + 1);
   if (idx + 1 < total) iframeNxt.src = deckUrl + '?preview=' + (idx + 2);
   /* Initialize notes/timer/count without touching iframes */
-  notesBody.innerHTML = slideMeta[idx].notes || '<span class="empty">（这一页还没有逐字稿）</span>';
+  renderNotes(idx);
   curMeta.textContent = (idx + 1) + '/' + total;
   nxtMeta.textContent = (idx + 2) + '/' + total;
   timerCount.textContent = (idx + 1) + ' / ' + total;
