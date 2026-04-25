@@ -511,6 +511,14 @@
   position: fixed;
   inset: 0;
   z-index: 90;
+  --overview-accent: var(--accent, var(--accent-2, #3b6cff));
+  --overview-accent-2: var(--accent-2, var(--accent, #7a5cff));
+  --overview-bg-1: color-mix(in srgb, var(--bg, #ffffff) 84%, var(--text-1, #111216) 16%);
+  --overview-bg-2: color-mix(in srgb, var(--bg-soft, #f7f7f8) 72%, var(--text-1, #111216) 28%);
+  --overview-glass: color-mix(in srgb, var(--surface, #ffffff) 82%, transparent);
+  --overview-glass-strong: color-mix(in srgb, var(--surface, #ffffff) 92%, transparent);
+  --overview-line: color-mix(in srgb, var(--border-strong, rgba(0,0,0,.18)) 72%, var(--overview-accent) 28%);
+  --overview-muted: color-mix(in srgb, var(--text-2, #55596a) 78%, var(--bg, #ffffff) 22%);
   display: block;
   visibility: hidden;
   opacity: 0;
@@ -518,10 +526,11 @@
   padding: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at 80% 12%, rgba(255,255,255,0.18), transparent 32%),
-    linear-gradient(135deg, rgba(7, 20, 38, 0.9), rgba(14, 28, 48, 0.84));
-  -webkit-backdrop-filter: blur(5px) saturate(1.02);
-  backdrop-filter: blur(5px) saturate(1.02);
+    radial-gradient(circle at 12% 10%, color-mix(in srgb, var(--overview-accent) 15%, transparent), transparent 32%),
+    radial-gradient(circle at 88% 14%, color-mix(in srgb, var(--accent-3, var(--overview-accent)) 12%, transparent), transparent 34%),
+    linear-gradient(135deg, var(--overview-bg-1), var(--overview-bg-2));
+  -webkit-backdrop-filter: blur(12px) saturate(1.06);
+  backdrop-filter: blur(12px) saturate(1.06);
   transition: opacity 0.24s ease, visibility 0s linear 0.24s;
 }
 .overview.open {
@@ -539,7 +548,7 @@
   display: none;
   align-items: center;
   gap: 14px;
-  color: #f7fbff;
+  color: var(--text-1, #111216);
 }
 .overview-title {
   display: inline-flex;
@@ -554,12 +563,12 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue, #2457ff), var(--cyan, #00a6b2));
-  box-shadow: 0 0 0 6px rgba(36, 87, 255, 0.16);
+  background: linear-gradient(135deg, var(--overview-accent), var(--overview-accent-2));
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--overview-accent) 16%, transparent);
 }
 .overview-count {
   margin-left: auto;
-  color: rgba(247, 251, 255, 0.76);
+  color: var(--overview-muted);
   font-size: 14px;
   font-weight: 800;
 }
@@ -568,10 +577,10 @@
   height: 36px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #f7fbff;
+  border: 1px solid var(--overview-line);
+  border-radius: var(--radius-sm, 12px);
+  background: var(--overview-glass);
+  color: var(--text-1, #111216);
   font-size: 25px;
   line-height: 1;
   cursor: pointer;
@@ -580,7 +589,7 @@
 .overview-close:hover,
 .overview-close:focus-visible {
   outline: none;
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--overview-glass-strong);
   transform: translateY(-1px);
 }
 .overview-grid {
@@ -608,13 +617,15 @@
   min-height: 0;
   padding: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.86);
-  color: var(--ink, #071426);
+  border: 1px solid var(--overview-line);
+  border-radius: calc(var(--radius-sm, 12px) + 6px);
+  background: var(--overview-glass);
+  color: var(--text-1, #111216);
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-lg, 0 18px 46px rgba(0, 0, 0, 0.14));
+  -webkit-backdrop-filter: blur(14px) saturate(1.04);
+  backdrop-filter: blur(14px) saturate(1.04);
   opacity: 0;
   transform: translateY(12px);
   transition:
@@ -631,12 +642,14 @@
 .overview-card:hover,
 .overview-card:focus-visible {
   outline: none;
-  border-color: rgba(0, 166, 178, 0.62);
-  box-shadow: 0 20px 54px rgba(0, 166, 178, 0.2);
+  border-color: color-mix(in srgb, var(--overview-accent) 58%, var(--border-strong, rgba(0,0,0,.2)));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--overview-accent) 18%, transparent), var(--shadow-lg, 0 20px 54px rgba(0,0,0,.16));
 }
 .overview-card.is-active {
-  border-color: rgba(36, 87, 255, 0.78);
-  box-shadow: 0 0 0 2px rgba(36, 87, 255, 0.2), 0 22px 58px rgba(0, 0, 0, 0.22);
+  border-color: color-mix(in srgb, var(--overview-accent) 78%, var(--border-strong, rgba(0,0,0,.2)));
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--overview-accent) 22%, transparent),
+    var(--shadow-lg, 0 22px 58px rgba(0, 0, 0, 0.18));
 }
 .overview-thumb-stage {
   position: absolute;
@@ -646,7 +659,7 @@
   aspect-ratio: auto;
   overflow: hidden;
   border-radius: 11px;
-  background: #fff;
+  background: var(--bg, #fff);
   border: 0;
 }
 .overview-card::after {
@@ -657,7 +670,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: linear-gradient(180deg, transparent 58%, rgba(7, 20, 38, 0.32));
+  background: linear-gradient(180deg, transparent 58%, color-mix(in srgb, var(--bg, #fff) 54%, transparent));
 }
 .overview-thumb-deck {
   position: absolute;
@@ -694,31 +707,38 @@
   grid-template-columns: auto minmax(0, 1fr);
   gap: 9px;
   align-items: center;
-  padding: 7px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 10px 24px rgba(7, 20, 38, 0.12);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--border, rgba(0,0,0,.1)) 72%, transparent);
+  border-radius: calc(var(--radius-sm, 12px) + 8px);
+  background: color-mix(in srgb, var(--surface, #fff) 84%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--text-1, #111216) 10%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(1.04);
+  backdrop-filter: blur(10px) saturate(1.04);
 }
 .overview-num {
-  min-width: 34px;
-  padding: 3px 7px;
+  min-width: 32px;
+  padding: 3px 7px 4px;
   border-radius: 999px;
-  background: rgba(36, 87, 255, 0.09);
-  color: var(--blue, #2457ff);
+  border: 1px solid color-mix(in srgb, var(--overview-accent) 22%, transparent);
+  background: color-mix(in srgb, var(--overview-accent) 12%, var(--surface, #fff));
+  color: var(--overview-accent);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.2;
-  font-weight: 900;
+  font-weight: 800;
   text-align: center;
+}
+.overview-card.is-active .overview-num {
+  background: var(--overview-accent);
+  color: var(--bg, #fff);
+  border-color: transparent;
 }
 .overview-label {
   overflow: hidden;
-  color: var(--text, #243247);
-  font-size: 14px;
+  color: var(--text-1, #243247);
+  font-size: 13.5px;
   line-height: 1.35;
-  font-weight: 900;
+  font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
