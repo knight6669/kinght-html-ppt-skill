@@ -1238,7 +1238,7 @@
     let presenterWin = null;
 
     function presenterWindowStorageKey() {
-      return 'html-ppt-presenter-window:v1:' + location.pathname;
+      return 'html-ppt-presenter-window:v2:' + location.pathname;
     }
     function readPresenterWindowState() {
       try {
@@ -1249,8 +1249,8 @@
       }
     }
     function presenterWindowFeatures(state) {
-      const w = Math.max(900, Math.min(2600, Math.round((state && state.w) || 1500)));
-      const h = Math.max(650, Math.min(1800, Math.round((state && state.h) || 920)));
+      const w = Math.max(900, Math.min(2600, Math.round((state && (state.innerW || state.w)) || 1500)));
+      const h = Math.max(650, Math.min(1800, Math.round((state && (state.innerH || state.h)) || 920)));
       const parts = ['width=' + w, 'height=' + h, 'menubar=no', 'toolbar=no'];
       if (state && Number.isFinite(state.x)) parts.push('left=' + Math.round(state.x));
       if (state && Number.isFinite(state.y)) parts.push('top=' + Math.round(state.y));
@@ -1285,7 +1285,7 @@
       const themeJSON = JSON.stringify(currentTheme || '');
       const storageKey = 'html-ppt-presenter:v5:' + location.pathname;
       const notesStorageKey = 'html-ppt-presenter-notes:v1:' + location.pathname;
-      const windowStorageKey = 'html-ppt-presenter-window:v1:' + location.pathname;
+      const windowStorageKey = 'html-ppt-presenter-window:v2:' + location.pathname;
 
       // Build the document as a single template string for clarity
       return `<!DOCTYPE html>
@@ -1705,15 +1705,45 @@
     rescaleIframe(iframeCur);
     rescaleIframe(iframeNxt);
   }
+  function readWindowState() {
+    try {
+      var saved = localStorage.getItem(WINDOW_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch(e) {
+      return null;
+    }
+  }
   function saveWindowState() {
     try {
       localStorage.setItem(WINDOW_STORAGE_KEY, JSON.stringify({
-        w: window.outerWidth || window.innerWidth,
-        h: window.outerHeight || window.innerHeight,
+        innerW: window.innerWidth,
+        innerH: window.innerHeight,
+        outerW: window.outerWidth || window.innerWidth,
+        outerH: window.outerHeight || window.innerHeight,
         x: Number.isFinite(window.screenX) ? window.screenX : undefined,
-        y: Number.isFinite(window.screenY) ? window.screenY : undefined
+        y: Number.isFinite(window.screenY) ? window.screenY : undefined,
+        savedAt: Date.now()
       }));
     } catch(e) {}
+  }
+  function restoreWindowState() {
+    var state = readWindowState();
+    if (!state) return false;
+    var targetW = Number(state.innerW || state.w);
+    var targetH = Number(state.innerH || state.h);
+    try {
+      if (Number.isFinite(state.x) && Number.isFinite(state.y) && window.moveTo) {
+        window.moveTo(Math.round(state.x), Math.round(state.y));
+      }
+      if (Number.isFinite(targetW) && Number.isFinite(targetH) && window.resizeBy) {
+        var dx = Math.round(targetW - window.innerWidth);
+        var dy = Math.round(targetH - window.innerHeight);
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) window.resizeBy(dx, dy);
+      }
+      return true;
+    } catch(e) {
+      return false;
+    }
   }
   var windowStateTimer = 0;
   var layoutResetTimer = 0;
@@ -1944,8 +1974,10 @@
    * 'preview-ready', all subsequent navigation is via postMessage
    * (smooth, no reload, no flicker).
    */
-  applyLayout(readLayout());
-  saveWindowState();
+  restoreWindowState();
+  resetLayoutForViewport();
+  setTimeout(resetLayoutForViewport, 180);
+  setTimeout(saveWindowState, 260);
   iframeCur.src = deckUrl + '?preview=' + (idx + 1);
   if (idx + 1 < total) iframeNxt.src = deckUrl + '?preview=' + (idx + 2);
   /* Initialize notes/timer/count without touching iframes */
