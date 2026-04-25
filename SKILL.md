@@ -160,9 +160,16 @@ Only after those are clear, scaffold the deck and start writing.
   navigator with real slide thumbnails, page numbers, a lightly dimmed
   background, click-to-jump behavior, and automatic scrolling for decks with
   many pages. Keep the navigator visually polished and compact enough to show
-  several pages at once: soft panel edges, compact but readable thumbnails, restrained
-  active-state highlight, hidden or near-invisible scrollbars, and progressive
-  open/close motion for the dimmed backdrop, side panel, and thumbnail rows.
+  several pages at once: a narrow side panel, compact but readable thumbnails,
+  page number and page title placed below each thumbnail, restrained active-state
+  highlight, hidden or near-invisible scrollbars, and progressive open/close
+  motion for the dimmed backdrop, side panel, and thumbnail rows. The transition
+  between the navigator and the defocused slide should be clean and crisp: prefer
+  a very subtle cyan hairline that softly fades into the right-side backdrop,
+  with restrained edge shadow over thick glowing bars or broad blue haze.
+  The page count and close control in the navigator header should stay quiet:
+  use muted text for the count and a small ghost-style circular close button
+  that only becomes visually prominent on hover/focus.
   The far-left hover trigger should be very narrow, show an immediate thin glow
   indicator, and open the navigator only after a tiny hover delay so casual
   mouse passes do not trigger it.
