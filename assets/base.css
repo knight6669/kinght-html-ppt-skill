@@ -1,4 +1,4 @@
-/* kinght-html-ppt-skill :: base.css — reset + shared tokens + layout primitives */
+/* knight-html-ppt-skill :: base.css — reset + shared tokens + layout primitives */
 /* Default tokens. Themes in assets/themes/*.css override the :root block. */
 :root {
   --bg: #ffffff;

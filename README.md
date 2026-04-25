@@ -1,4 +1,4 @@
-# kinght-html-ppt-skill
+# knight-html-ppt-skill
 > 一款高质量的 AgentSkill，让 AI 做出真正能打的 HTML 演示文稿。
 > **36 套主题**、**15 套完整 deck 模板**、**31 种页面布局**、**47 个动效**
 > (27 个 CSS + 20 个 Canvas FX)，加上全新的 **演讲者模式** —— 像素级
@@ -11,7 +11,7 @@
 
 ## 产品定位
 
-`kinght-html-ppt-skill` 是一个“HTML 演示稿生产基座”：
+`knight-html-ppt-skill` 是一个“HTML 演示稿生产基座”：
 
 - 用静态 HTML/CSS/JS 交付，可直接在浏览器中打开和演示。
 - 默认适配中文正式汇报，强调清晰、稳重、数据可信和页面不溢出。
@@ -135,7 +135,7 @@
 安装到支持 Agent Skills 的环境：
 
 ```bash
-npx skills add https://github.com/<your-github-name>/kinght-html-ppt-skill
+npx skills add https://github.com/knight6669/knight-html-ppt-skill
 ```
 
 从模板创建一份演示稿：

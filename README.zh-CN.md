@@ -1,4 +1,4 @@
-# kinght-html-ppt-skill
+# knight-html-ppt-skill
 
 面向中文正式汇报、技术分享和产品叙事的 HTML PPT Agent Skill。  
 它基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 的主题、模板、布局、动画和演讲者模式能力，进一步沉淀各种交付级场景的版式规范、数据动效、页面导览和交付检查流程，让 AI 生成的 HTML 演示稿更接近可直接投屏的正式成果。
@@ -7,7 +7,7 @@
 
 ## 产品定位
 
-`kinght-html-ppt-skill` 是一个“HTML 演示稿生产基座”：
+`knight-html-ppt-skill` 是一个“HTML 演示稿生产基座”：
 
 - 用静态 HTML/CSS/JS 交付，可直接在浏览器中打开和演示。
 - 默认适配中文正式汇报，强调清晰、稳重、数据可信和页面不溢出。
@@ -116,7 +116,7 @@
 安装到支持 Agent Skills 的环境：
 
 ```bash
-npx skills add https://github.com/<your-github-name>/kinght-html-ppt-skill
+npx skills add https://github.com/knight6669/knight-html-ppt-skill
 ```
 
 从模板创建一份演示稿：
@@ -145,7 +145,7 @@ Start-Process .\examples\my-report\index.html
 ## 建议目录结构
 
 ```text
-kinght-html-ppt-skill/
+knight-html-ppt-skill/
 ├── SKILL.md
 ├── README.md
 ├── LICENSE

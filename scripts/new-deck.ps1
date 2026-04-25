@@ -1,4 +1,4 @@
-# kinght-html-ppt-skill :: new-deck.ps1 - scaffold a new deck from templates/deck.html
+# knight-html-ppt-skill :: new-deck.ps1 - scaffold a new deck from templates/deck.html
 #
 # Usage:
 #   .\scripts\new-deck.ps1 my-talk

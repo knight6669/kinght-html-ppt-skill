@@ -1,4 +1,4 @@
-/* kinght-html-ppt-skill :: runtime.js
+/* knight-html-ppt-skill :: runtime.js
  * Keyboard-driven deck runtime. Zero dependencies.
  *
  * Features:
