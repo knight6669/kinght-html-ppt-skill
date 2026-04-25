@@ -1384,7 +1384,11 @@
     font-style: italic;
   }
   .pcard-notes .pcard-body p { margin: 0 0 .86em 0; }
-  .pcard-notes .pcard-body strong { color: #f0883e; }
+  .pcard-notes .pcard-body strong,
+  .pcard-notes .pcard-body b {
+    color: #f0883e;
+    font-weight: 800;
+  }
   .pcard-notes .pcard-body em { color: #58a6ff; font-style: normal; }
   .pcard-notes .pcard-body code {
     font-family: "SF Mono", monospace; font-size: .9em;
@@ -1609,6 +1613,31 @@
     clearTimeout(saveNotesTimer);
     saveNotesTimer = setTimeout(saveCurrentNotes, 360);
   }
+  function normalizeNotesEmphasis() {
+    notesBody.querySelectorAll('b').forEach(function(node){
+      var strong = document.createElement('strong');
+      while (node.firstChild) strong.appendChild(node.firstChild);
+      node.replaceWith(strong);
+    });
+    notesBody.querySelectorAll('span[style]').forEach(function(node){
+      var weight = node.style && node.style.fontWeight;
+      var numeric = parseInt(weight, 10);
+      if (weight === 'bold' || numeric >= 600) {
+        var strong = document.createElement('strong');
+        while (node.firstChild) strong.appendChild(node.firstChild);
+        node.replaceWith(strong);
+      }
+    });
+  }
+  notesBody.addEventListener('keydown', function(e){
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && String(e.key || '').toLowerCase() === 'b') {
+      e.preventDefault();
+      notesBody.focus();
+      try { document.execCommand('bold', false, null); } catch(err) {}
+      normalizeNotesEmphasis();
+      scheduleNotesSave();
+    }
+  });
   notesBody.addEventListener('input', scheduleNotesSave);
   notesBody.addEventListener('blur', saveCurrentNotes);
 
