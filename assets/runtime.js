@@ -1266,6 +1266,7 @@
   /* Magnetic card */
   .pcard {
     position: absolute;
+    z-index: 1;
     background: #0d1117;
     border: 1px solid rgba(255,255,255,.1);
     border-radius: 8px;
@@ -1278,6 +1279,10 @@
   .pcard.dragging { box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 2px rgba(88,166,255,.5); border-color: #58a6ff; transition: none; z-index: 9999; }
   .pcard.resizing { box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 2px rgba(63,185,80,.5); border-color: #3fb950; transition: none; z-index: 9999; }
   .pcard:hover { border-color: rgba(88,166,255,.3); }
+  #card-cur { z-index: 40; }
+  #card-nxt { z-index: 30; }
+  #card-notes { z-index: 20; }
+  #card-timer { z-index: 10; }
 
   /* Card header (drag handle) */
   .pcard-head {
@@ -1576,7 +1581,7 @@
       };
     }
     var columnW = availableW - gap;
-    var leftW = Math.round(columnW * 0.62);
+    var leftW = Math.round(columnW * 0.66);
     var rightW = columnW - leftW;
     var curH = Math.round(header + leftW / 1.6);
     curH = Math.max(360, Math.min(curH, availableH - gap - 230));
