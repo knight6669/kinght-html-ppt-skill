@@ -37,12 +37,30 @@
     const m = /[?&]preview=(\d+)/.exec(location.search || '');
     return m ? parseInt(m[1], 10) - 1 : -1;
   }
+  function getQueryParam(name) {
+    try { return new URLSearchParams(location.search || '').get(name); }
+    catch(e) { return null; }
+  }
+  function getPresenterIdx(total) {
+    if (getQueryParam('presenter') !== '1') return -1;
+    const raw = parseInt(getQueryParam('slide') || '1', 10);
+    const idx = Number.isFinite(raw) ? raw - 1 : 0;
+    return Math.max(0, Math.min(total - 1, idx));
+  }
+  function getDeckBaseUrl() {
+    const url = new URL(location.href);
+    url.search = '';
+    url.hash = '';
+    return url.href;
+  }
 
   ready(function () {
     const deck = document.querySelector('.deck');
     if (!deck) return;
     const slides = Array.from(deck.querySelectorAll('.slide'));
     if (!slides.length) return;
+    const total = slides.length;
+    const CHANNEL_NAME = 'html-ppt-presenter-' + location.pathname;
 
     const previewOnlyIdx = getPreviewIdx();
     const isPreviewMode = previewOnlyIdx >= 0 && previewOnlyIdx < slides.length;
@@ -106,11 +124,28 @@
       return;
     }
 
+    const presenterOnlyIdx = getPresenterIdx(total);
+    if (presenterOnlyIdx >= 0) {
+      const deckUrl = getDeckBaseUrl();
+      const slideMeta = slides.map((s, i) => {
+        const note = s.querySelector('.notes, aside.notes, .speaker-notes');
+        return {
+          title: s.getAttribute('data-title') ||
+            (s.querySelector('h1,h2,h3')||{}).textContent || ('Slide '+(i+1)),
+          notes: note ? note.innerHTML : ''
+        };
+      });
+      const presenterTheme = getQueryParam('theme') ||
+        document.documentElement.getAttribute('data-theme') || '';
+      document.open();
+      document.write(buildPresenterHTML(deckUrl, slideMeta, total, presenterOnlyIdx, CHANNEL_NAME, presenterTheme));
+      document.close();
+      return;
+    }
+
     let idx = 0;
-    const total = slides.length;
 
     /* ===== BroadcastChannel for presenter sync ===== */
-    const CHANNEL_NAME = 'html-ppt-presenter-' + location.pathname;
     let bc;
     try { bc = new BroadcastChannel(CHANNEL_NAME); } catch(e) { bc = null; }
 
@@ -1202,37 +1237,45 @@
      */
     let presenterWin = null;
 
+    function presenterWindowStorageKey() {
+      return 'html-ppt-presenter-window:v1:' + location.pathname;
+    }
+    function readPresenterWindowState() {
+      try {
+        const saved = localStorage.getItem(presenterWindowStorageKey());
+        return saved ? JSON.parse(saved) : null;
+      } catch(e) {
+        return null;
+      }
+    }
+    function presenterWindowFeatures(state) {
+      const w = Math.max(900, Math.min(2600, Math.round((state && state.w) || 1500)));
+      const h = Math.max(650, Math.min(1800, Math.round((state && state.h) || 920)));
+      const parts = ['width=' + w, 'height=' + h, 'menubar=no', 'toolbar=no'];
+      if (state && Number.isFinite(state.x)) parts.push('left=' + Math.round(state.x));
+      if (state && Number.isFinite(state.y)) parts.push('top=' + Math.round(state.y));
+      return parts.join(',');
+    }
+
     function openPresenterWindow() {
       if (presenterWin && !presenterWin.closed) {
         presenterWin.focus();
+        if (bc) bc.postMessage({ type: 'go', idx: idx });
         return;
       }
 
-      // Build absolute URL of THIS deck file (without hash/query)
-      const deckUrl = location.protocol + '//' + location.host + location.pathname;
-
-      // Collect slide titles + notes (HTML strings)
-      const slideMeta = slides.map((s, i) => {
-        const note = s.querySelector('.notes, aside.notes, .speaker-notes');
-        return {
-          title: s.getAttribute('data-title') ||
-            (s.querySelector('h1,h2,h3')||{}).textContent || ('Slide '+(i+1)),
-          notes: note ? note.innerHTML : ''
-        };
-      });
-
-      /* Capture current theme so presenter previews match the audience */
+      const deckUrl = getDeckBaseUrl();
       const currentTheme = root.getAttribute('data-theme') || (themes[themeIdx] || '');
-      const presenterHTML = buildPresenterHTML(deckUrl, slideMeta, total, idx, CHANNEL_NAME, currentTheme);
+      const presenterUrl = deckUrl + '?presenter=1&slide=' + (idx + 1) +
+        (currentTheme ? '&theme=' + encodeURIComponent(currentTheme) : '');
+      const features = presenterWindowFeatures(readPresenterWindowState());
 
-      presenterWin = window.open('', 'html-ppt-presenter', 'width=1500,height=920,menubar=no,toolbar=no');
+      presenterWin = window.open(presenterUrl, 'html-ppt-presenter', features);
       if (!presenterWin) {
         alert('请允许弹出窗口以使用演讲者视图');
         return;
       }
-      presenterWin.document.open();
-      presenterWin.document.write(presenterHTML);
-      presenterWin.document.close();
+      presenterWin.focus();
     }
 
     function buildPresenterHTML(deckUrl, slideMeta, total, startIdx, channelName, currentTheme) {
@@ -1240,8 +1283,9 @@
       const deckUrlJSON = JSON.stringify(deckUrl);
       const channelJSON = JSON.stringify(channelName);
       const themeJSON = JSON.stringify(currentTheme || '');
-      const storageKey = 'html-ppt-presenter:v3:' + location.pathname;
+      const storageKey = 'html-ppt-presenter:v5:' + location.pathname;
       const notesStorageKey = 'html-ppt-presenter-notes:v1:' + location.pathname;
+      const windowStorageKey = 'html-ppt-presenter-window:v1:' + location.pathname;
 
       // Build the document as a single template string for clarity
       return `<!DOCTYPE html>
@@ -1501,6 +1545,7 @@
   var deckUrl = ${deckUrlJSON};
   var STORAGE_KEY = ${JSON.stringify(storageKey)};
   var NOTES_STORAGE_KEY = ${JSON.stringify(notesStorageKey)};
+  var WINDOW_STORAGE_KEY = ${JSON.stringify(windowStorageKey)};
   var bc;
   try { bc = new BroadcastChannel(${channelJSON}); } catch(e) {}
 
@@ -1649,7 +1694,7 @@
     if (!cw || !ch) return;
     var baseW = 1600;
     var baseH = 1000;
-    var s = Math.max(cw / baseW, ch / baseH);
+    var s = Math.max(cw / baseW, ch / baseH) * 1.002;
     iframe.style.transform = 'scale(' + s + ')';
     /* Center the scaled iframe in the body */
     var sw = baseW * s, sh = baseH * s;
@@ -1660,7 +1705,37 @@
     rescaleIframe(iframeCur);
     rescaleIframe(iframeNxt);
   }
-  window.addEventListener('resize', rescaleAll);
+  function saveWindowState() {
+    try {
+      localStorage.setItem(WINDOW_STORAGE_KEY, JSON.stringify({
+        w: window.outerWidth || window.innerWidth,
+        h: window.outerHeight || window.innerHeight,
+        x: Number.isFinite(window.screenX) ? window.screenX : undefined,
+        y: Number.isFinite(window.screenY) ? window.screenY : undefined
+      }));
+    } catch(e) {}
+  }
+  var windowStateTimer = 0;
+  var layoutResetTimer = 0;
+  function scheduleWindowStateSave() {
+    clearTimeout(windowStateTimer);
+    windowStateTimer = setTimeout(saveWindowState, 150);
+  }
+  function resetLayoutForViewport() {
+    applyLayout(defaultLayout());
+    saveLayout();
+    rescaleAll();
+  }
+  window.addEventListener('resize', function(){
+    scheduleWindowStateSave();
+    clearTimeout(layoutResetTimer);
+    layoutResetTimer = setTimeout(resetLayoutForViewport, 120);
+  });
+  window.addEventListener('beforeunload', function(){
+    saveCurrentNotes();
+    saveWindowState();
+  });
+  setInterval(saveWindowState, 1600);
 
   /* ===== Drag (move card by header) ===== */
   document.querySelectorAll('[data-drag]').forEach(function(handle){
@@ -1870,6 +1945,7 @@
    * (smooth, no reload, no flicker).
    */
   applyLayout(readLayout());
+  saveWindowState();
   iframeCur.src = deckUrl + '?preview=' + (idx + 1);
   if (idx + 1 < total) iframeNxt.src = deckUrl + '?preview=' + (idx + 2);
   /* Initialize notes/timer/count without touching iframes */
