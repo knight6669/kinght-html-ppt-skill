@@ -1,141 +1,199 @@
-# Authoring guide
+# Authoring Guide
 
 How to turn a user request ("make me a deck about X") into a finished
 html-ppt deck. Follow these steps in order.
 
-## 1. Understand the deck
+## 1. Understand The Deck
 
-Before touching files, clarify:
+Before touching files, clarify or infer:
 
-1. **Audience** — engineers? designers? executives? consumers?
-2. **Length** — 5 min lightning? 20 min share? 45 min talk?
-3. **Language** — Chinese, English, bilingual? (Noto Sans SC is preloaded.)
-4. **Format** — on-screen live, PDF export, 小红书图文?
-5. **Tone** — clinical / playful / editorial / cyber?
+1. **Audience** — engineers, PMs, designers, executives, consumers, students?
+2. **Length** — 5 min lightning, 20 min share, 45 min talk?
+3. **Language** — Chinese, English, bilingual? Noto Sans SC is preloaded.
+4. **Format** — live presentation, PDF export, social-card post?
+5. **Tone** — clinical, friendly, editorial, productized, playful, cyber?
 
-The audience + tone map to a theme; the length maps to slide count; the
-format maps to runtime features (live → notes + T-cycle; PDF → page-break
-CSS, already handled in `base.css`).
+Audience and tone determine theme candidates; length determines slide count;
+format determines runtime needs such as notes, T-cycle, PNG render, or PDF CSS.
 
-## 2. Pick a theme
+## 2. Pick Exactly 3 Themes
 
-Use `references/themes.md`. When in doubt:
+Every deck should get **3 content-fit theme candidates** from the full
+36-theme catalog in `assets/themes/`. The first theme is the default. The other
+two are alternates the user can preview with **T**.
 
-- **Engineers** → `catppuccin-mocha` / `tokyo-night` / `dracula`.
-- **Designers / product** → `editorial-serif` / `aurora` / `soft-pastel`.
-- **Execs** → `minimal-white` / `arctic-cool` / `swiss-grid`.
-- **Consumers** → `xiaohongshu-white` / `sunset-warm` / `soft-pastel`.
-- **Cyber / CLI / infra** → `terminal-green` / `blueprint` / `gruvbox-dark`.
-- **Pitch / bold** → `neo-brutalism` / `sharp-mono` / `bauhaus`.
-- **Launch / product reveal** → `glassmorphism` / `aurora`.
+Do this every time:
 
-Wire the theme as `<link id="theme-link" href="../assets/themes/NAME.css">`
-and list 3-5 alternatives in `data-themes` so the user can press T to audition.
+1. Read the deck subject, audience, and setting.
+2. Choose 3 themes from all 36, not from a fixed pack.
+3. Put the best theme first in both `data-themes` and `theme-link`.
+4. Verify all 3 with T before delivery.
 
-## 3. Outline the deck
+Example wiring:
 
-A solid 20-minute deck is usually:
-
-```
-cover → toc → section-divider #1 → [2-4 body pages] →
-section-divider #2 → [2-4 body pages] → section-divider #3 →
-[2-4 body pages] → cta → thanks
+```html
+<html lang="zh-CN" data-themes="corporate-clean,soft-pastel,aurora" data-theme-base="../assets/themes/">
+<link rel="stylesheet" id="theme-link" href="../assets/themes/corporate-clean.css">
 ```
 
-Pick 1 layout per page from `references/layouts.md`. Don't repeat the same
-layout twice in a row.
+Fast theme triage:
 
-## 4. Scaffold the deck
+| Deck type | Good 3-theme set |
+|---|---|
+| Product / PM / non-technical sharing | `corporate-clean`, `soft-pastel`, `aurora` |
+| Executive / business review | `corporate-clean`, `minimal-white`, `pitch-deck-vc` |
+| Research / academic / policy | `academic-paper`, `minimal-white`, `editorial-serif` |
+| Engineering / developer talk | `tokyo-night`, `catppuccin-mocha`, `engineering-whiteprint` |
+| Architecture / systems | `blueprint`, `engineering-whiteprint`, `nord` |
+| Consumer / lifestyle / social | `xiaohongshu-white`, `soft-pastel`, `sunset-warm` |
+| Brand story / editorial | `magazine-bold`, `editorial-serif`, `japanese-minimal` |
+| Launch / reveal / future-facing | `aurora`, `glassmorphism`, `rainbow-gradient` |
+| Bold pitch / manifesto | `pitch-deck-vc`, `neo-brutalism`, `sharp-mono` |
+| Retro / culture / entertainment | `retro-tv`, `midcentury`, `vaporwave` |
+| Cyber / CLI / security | `cyberpunk-neon`, `terminal-green`, `tokyo-night` |
+
+These are starting points, not rules. If the content calls for a different
+combination, choose differently.
+
+## 3. Outline The Deck
+
+A solid 20-minute deck usually follows:
+
+```text
+cover -> why now -> core idea -> section 1 -> section 2 -> workflow/demo -> risks -> next steps -> close
+```
+
+Pick one layout per page from `references/layouts.md`. Avoid repeating the
+same layout twice in a row unless the sequence is intentionally rhythmic.
+
+## 4. Scaffold The Deck
 
 ```bash
 ./scripts/new-deck.sh my-talk
 ```
 
-This copies `templates/deck.html` into `examples/my-talk/index.html` with
-paths rewritten. Add/remove `<section class="slide">` blocks to match your
-outline.
+This copies `templates/deck.html` into `examples/my-talk/index.html` with paths
+rewritten. Add or remove `<section class="slide">` blocks to match the outline.
 
-## 5. Author each slide
+For a talk with speaker notes, prefer:
+
+```text
+templates/full-decks/presenter-mode-reveal/
+```
+
+## 5. Author Each Slide
 
 For each outline item:
 
-1. Open the matching single-page layout, e.g. `templates/single-page/kpi-grid.html`.
-2. Copy the `<section class="slide">…</section>` block.
-3. Paste into your deck.
-4. Replace demo data with real data. Keep the class structure intact.
-5. Set `data-title="..."` (used by the Overview grid).
-6. Add `<div class="notes">…</div>` with speaker notes.
+1. Open a matching single-page layout, e.g. `templates/single-page/kpi-grid.html`.
+2. Copy the `<section class="slide">...</section>` block.
+3. Paste it into your deck.
+4. Replace demo data with real content while keeping the structure.
+5. Set `data-title="..."` for the overview and E-key page navigator.
+6. Add `<aside class="notes">...</aside>` when the deck is for a live talk.
 
-## 6. Add animations sparingly
+## 6. Add CSS Animations
 
-Rules of thumb:
+Use the built-in animation library through `data-anim`. Runtime replays these
+animations whenever a slide is entered, so titles, grids, and cards can animate
+again when the speaker returns to a page.
 
-- Cover/title: `rise-in` or `blur-in`.
-- Body content: `fade-up` for the hero element, `stagger-list` for grids/lists.
-- Stat pages: `counter-up`.
-- Section dividers: `perspective-zoom` or `cube-rotate-3d`.
-- Closer: `confetti-burst` on the "Thanks" text.
+Recommended defaults:
 
-Pick **one** accent animation per slide. Everything else should be calm.
+- Cover/title: `data-anim="rise-in"` or `data-anim="blur-in"`.
+- Body headings: `data-anim="fade-up"`.
+- Grids, card groups, steps, and lists: `data-anim="stagger-list"`.
+- Stats: `.counter` with `data-to="..."`.
+- Section dividers / CTA: `data-anim="perspective-zoom"`.
 
-## 7. Chinese + English decks
+Pick one main entry rhythm per slide. Let the content breathe.
 
-- Fonts are already imported in `fonts.css` (Noto Sans SC + Noto Serif SC).
-- Use `lang="zh-CN"` on `<html>`.
-- For bilingual titles, stack lines: `<h1 class="h1">主标题<br><span class="dim">English subtitle</span></h1>`.
-- Keep English subtitles in a lighter weight (300) and dim color to avoid
-  visual competition.
+## 7. Add Canvas FX
 
-## 8. Review in-browser
+Canvas FX should be a subtle background layer, not the main content. Use them
+on a few emphasis pages: cover, capability, workflow, skills, closing, or a
+major section transition.
 
-```bash
-open examples/my-talk/index.html
+Pattern:
+
+```html
+<section class="slide" data-title="Workflow">
+  <div class="slide-fx" data-fx="chain-react"></div>
+  ...
+</section>
+<script src="../assets/animations/fx-runtime.js"></script>
 ```
 
-Walk through every slide with ← →. Press:
+CSS:
 
-- **O** — overview grid; catch any layout clipping.
-- **T** — cycle themes; make sure nothing looks broken in any theme.
-- **S** — open speaker notes; verify every slide has notes.
+```css
+.slide > :not(.slide-fx) { position: relative; z-index: 1; }
+.slide-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .08;
+}
+```
 
-## 9. Export to PNG
+Good pairings:
+
+| Page role | FX candidates |
+|---|---|
+| Cover / close | `gradient-blob`, `starfield`, `constellation` |
+| Capability / system | `knowledge-graph`, `neural-net`, `chain-react` |
+| Workflow / process | `data-stream`, `orbit-ring`, `magnetic-field` |
+| Skills / library / memory | `word-cascade`, `typewriter-multi`, `sparkle-trail` |
+| Celebration / final | `confetti-cannon`, `firework`, `particle-burst` |
+
+Keep the FX opacity low and make it theme-aware by styling only with tokens
+where possible.
+
+## 8. Review In Browser
+
+Walk through every slide with arrow keys. Press:
+
+- **T** — cycle the 3 selected themes and verify none breaks layout.
+- **E** — open compact page navigation and confirm thumbnails/titles fit.
+- **O** — overview grid; catch clipping and overcrowding.
+- **S** — speaker view; verify notes exist and presenter controls work.
+- **A** — demo animation cycling if the deck uses animation targets.
+
+Also verify mouse-wheel navigation: one wheel gesture should advance or go
+back by one slide only.
+
+## 9. Export To PNG
 
 ```bash
 # single slide
 ./scripts/render.sh examples/my-talk/index.html
 
-# all slides (autodetect count by looking for .slide sections)
+# all slides
 ./scripts/render.sh examples/my-talk/index.html all
 
 # explicit slide count + output dir
 ./scripts/render.sh examples/my-talk/index.html 12 out/my-talk-png
 ```
 
-Output is 1920×1080 by default. Change in `render.sh` if the user wants 3:4
-for 小红书图文 (1242×1660).
+Output is 1920x1080 by default. Adjust the render script only when the user
+explicitly requests another ratio.
 
-## 10. What to NOT do
+## 10. What Not To Do
 
-- Don't hand-author from a blank file.
-- Don't use raw hex colors in slide markup. Use tokens.
-- Don't load heavy animation frameworks. Everything should stay within the
-  CSS/JS that already ships.
-- Don't add more than one new template file unless a genuinely new layout
-  type is needed. Prefer composition.
-- Don't delete slides from the showcase decks.
-- **Don't put presenter-only text on the slide.** Any descriptive text,
-  narration cues, or explanations meant for the speaker (e.g. "这一页的重点是…",
-  "Note: mention X here", small grey captions explaining the slide's purpose)
-  MUST go inside `<div class="notes">`, not as visible elements. The `.notes`
-  div is hidden (`display:none`) and only shown via the S overlay. Slides
-  should contain ONLY audience-facing content.
+- Do not hand-author from a blank file when a template can be used.
+- Do not use raw hex colors in slide markup; use tokens.
+- Do not lock every deck to the same 3 themes.
+- Do not load extra animation frameworks; use the shipped CSS/JS.
+- Do not add more than one new template file unless a genuinely new layout is needed.
+- Do not put presenter-only explanation on visible slides. Put it inside
+  `<aside class="notes">` or `<div class="notes">`.
 
 ## Troubleshooting
 
-- **Theme doesn't switch with T**: check `data-themes` on `<body>` and
-  `data-theme-base` pointing to the themes directory relative to the HTML
-  file.
-- **Fonts fall back**: make sure `fonts.css` is linked before the theme.
-- **Chart.js colors wrong**: charts read CSS vars in JS; make sure they run
-  after the DOM is ready (`addEventListener('DOMContentLoaded', …)`).
-- **PNG too small**: bump `--window-size` in `scripts/render.sh`.
+- **T does not switch themes**: check `data-themes` and `data-theme-base`.
+- **Only one theme changes**: make sure `theme-link` points to the first item in `data-themes`.
+- **Canvas FX does not show**: include `fx-runtime.js`, confirm `[data-fx]` is inside the active slide, and give the layer dimensions.
+- **Animations do not replay**: use `data-anim`, not only a static class.
+- **Fonts fall back**: link `fonts.css` before the theme.
+- **PNG too small**: adjust the render script viewport.

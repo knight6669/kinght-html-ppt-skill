@@ -24,7 +24,7 @@ One command, no build. Pure static HTML/CSS/JS with only CDN webfonts.
 - **31 layouts** (`templates/single-page/*.html`) with realistic demo data
 - **27 CSS animations** (`assets/animations/animations.css`) via `data-anim`
 - **20 canvas FX animations** (`assets/animations/fx/*.js`) via `data-fx` — particle-burst, confetti-cannon, firework, starfield, matrix-rain, knowledge-graph (force-directed), neural-net (pulses), constellation, orbit-ring, galaxy-swirl, word-cascade, letter-explode, chain-react, magnetic-field, data-stream, gradient-blob, sparkle-trail, shockwave, typewriter-multi, counter-explosion
-- **Keyboard + wheel runtime** (`assets/runtime.js`) — arrows, mouse wheel, T (theme), A (anim), F/O/E, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, N (notes drawer), R (reset timer in presenter)
+- **Keyboard + wheel runtime** (`assets/runtime.js`) — arrows, mouse wheel, T (theme), A (anim), F/O/E, **S (presenter mode: magnetic-card popup with CURRENT / NEXT / SCRIPT / TIMER cards)**, N (notes drawer), R (reset timer in presenter). The E-key page navigator is compact, token-based, and theme-aware.
 - **FX runtime** (`assets/animations/fx-runtime.js`) — auto-inits `[data-fx]` on slide enter, cleans up on leave
 - **Showcase decks** for themes / layouts / animations / full-decks gallery
 - **Headless Chrome render script** for PNG export
@@ -76,6 +76,13 @@ tasteful default and confirm.
    - 小红书图文 → `xiaohongshu-white`, `soft-pastel`, `rainbow-gradient`,
      `magazine-bold`
    - Academic / report → `academic-paper`, `editorial-serif`, `minimal-white`
+
+   For every real deck, pick **exactly 3 themes from the full 36-theme
+   catalog** based on content, audience, and setting. Put the best fit first:
+   it becomes both `<link id="theme-link" ...>` and the first item in
+   `data-themes`. Do not reuse a fixed theme pack unless it genuinely matches
+   the brief. `soft-pastel` and `aurora` are candidates, not defaults for every
+   presentation.
    - Edgy / cyber / launch → `cyberpunk-neon`, `vaporwave`, `y2k-chrome`,
      `neo-brutalism`
 3. **Starting point.** One of the 14 full-deck templates, or scratch? Point
@@ -87,7 +94,7 @@ A good opening message looks like:
 
 > 我可以给你做这份 PPT！先确认三件事：
 > 1. 大致内容 / 页数 / 观众是谁？
-> 2. 风格偏好？我建议从这 3 个主题里选一个：`tokyo-night`（技术分享默认好看）、`xiaohongshu-white`（小红书风）、`corporate-clean`（正式汇报）。
+> 2. 风格偏好？如果你不确定，我会按内容和观众从 36 个内置主题里挑 3 个候选，默认用最匹配的那个，并保留 T 键切换。
 > 3. 要不要用我现成的 `tech-sharing` 全 deck 模板打底？
 
 Only after those are clear, scaffold the deck and start writing.
@@ -104,23 +111,32 @@ Only after those are clear, scaffold the deck and start writing.
    .\scripts\new-deck.ps1 my-talk
    Start-Process .\examples\my-talk\index.html
    ```
-2. **Pick a theme.** Open the deck and press `T` to cycle. Or hard-code it:
+2. **Pick 3 content-fit themes.** Choose exactly 3 from all 36 themes, based on
+   the deck's audience, tone, and topic. Hard-code the first as the default
+   theme and list all 3 in `data-themes`:
    ```html
-   <link rel="stylesheet" id="theme-link" href="../assets/themes/aurora.css">
+   <html data-themes="corporate-clean,soft-pastel,aurora" data-theme-base="../assets/themes/">
+   <link rel="stylesheet" id="theme-link" href="../assets/themes/corporate-clean.css">
    ```
    Catalog in [references/themes.md](references/themes.md).
 3. **Pick layouts.** Copy `<section class="slide">...</section>` blocks out of
    files in `templates/single-page/` into your deck. Replace the demo data.
    Catalog in [references/layouts.md](references/layouts.md).
 4. **Add animations.** Put `data-anim="fade-up"` (or `class="anim-fade-up"`) on
-   any element. On `<ul>`/grids, use `anim-stagger-list` for sequenced reveals.
-   For canvas FX, use `<div data-fx="knowledge-graph">...</div>` and include
-   `<script src="../assets/animations/fx-runtime.js"></script>`.
+   title blocks and key elements. On `<ul>`/grids/card groups, use
+   `data-anim="stagger-list"` for sequenced reveals. These replay every time a
+   slide is entered. For canvas FX, use a positioned background layer such as
+   `<div class="slide-fx" data-fx="gradient-blob"></div>` and include
+   `<script src="../assets/animations/fx-runtime.js"></script>`. Use FX
+   sparingly on high-emphasis pages such as cover, capability, workflow,
+   skills, and closing pages.
    Catalog in [references/animations.md](references/animations.md).
 5. **Use a full-deck template.** Copy `templates/full-decks/<name>/` into
    `examples/my-talk/` as a starting point. Each folder is self-contained with
    scoped CSS. Catalog in [references/full-decks.md](references/full-decks.md)
    and gallery at `templates/full-decks-index.html`.
+   Before delivery, replace any template sample `data-themes` with the 3
+   content-fit themes selected for the actual deck.
 6. **Render to PNG.**
    ```bash
    ./scripts/render.sh templates/theme-showcase.html       # one shot
