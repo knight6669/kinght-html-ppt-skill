@@ -953,7 +953,8 @@
 }
 .page-nav-thumb-stage {
   position: relative;
-  width: 100%;
+  width: 92%;
+  justify-self: center;
   aspect-ratio: var(--page-nav-aspect, 1.6);
   overflow: hidden;
   border-radius: 11px;
@@ -994,7 +995,7 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  padding: 1px 2px 0;
+  padding: 1px 4px 0;
 }
 .page-nav-num {
   flex: none;
