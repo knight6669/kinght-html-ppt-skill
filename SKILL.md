@@ -163,7 +163,9 @@ Only after those are clear, scaffold the deck and start writing.
   several pages at once: a narrow side panel, compact but readable thumbnails,
   page number and page title placed below each thumbnail, restrained active-state
   highlight, hidden or near-invisible scrollbars, and progressive open/close
-  motion for the dimmed backdrop, side panel, and thumbnail rows. The transition
+  motion for the dimmed backdrop, side panel, and thumbnail rows. Thumbnails
+  should fill their own card/frame rather than appear inset-centered; make them
+  smaller by narrowing the navigator and tightening card spacing. The transition
   between the navigator and the defocused slide should be clean and crisp: prefer
   a very subtle cyan hairline that softly fades into the right-side backdrop,
   with restrained edge shadow over thick glowing bars or broad blue haze.
