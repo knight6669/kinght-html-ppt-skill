@@ -1240,7 +1240,7 @@
       const deckUrlJSON = JSON.stringify(deckUrl);
       const channelJSON = JSON.stringify(channelName);
       const themeJSON = JSON.stringify(currentTheme || '');
-      const storageKey = 'html-ppt-presenter:v2:' + location.pathname;
+      const storageKey = 'html-ppt-presenter:v3:' + location.pathname;
       const notesStorageKey = 'html-ppt-presenter-notes:v1:' + location.pathname;
 
       // Build the document as a single template string for clarity
@@ -1583,8 +1583,9 @@
     var columnW = availableW - gap;
     var leftW = Math.round(columnW * 0.66);
     var rightW = columnW - leftW;
+    var timerMinH = Math.min(170, Math.max(132, availableH * 0.15));
     var curH = Math.round(header + leftW / 1.6);
-    curH = Math.max(360, Math.min(curH, availableH - gap - 230));
+    curH = Math.max(360, Math.min(curH, availableH - gap - timerMinH));
     var timerH = availableH - curH - gap;
     var nextH = Math.round(header + rightW / 1.6);
     nextH = Math.max(260, Math.min(nextH, availableH - gap - 320));
@@ -1648,7 +1649,7 @@
     if (!cw || !ch) return;
     var baseW = 1600;
     var baseH = 1000;
-    var s = Math.min(cw / baseW, ch / baseH);
+    var s = Math.max(cw / baseW, ch / baseH);
     iframe.style.transform = 'scale(' + s + ')';
     /* Center the scaled iframe in the body */
     var sw = baseW * s, sh = baseH * s;
@@ -1706,6 +1707,9 @@
       function onMove(ev){
         var nw = Math.max(180, startW + ev.clientX - startX);
         var nh = Math.max(100, startH + ev.clientY - startY);
+        if (card.classList.contains('pcard-preview')) {
+          nh = Math.max(100, 38 + (nw / 1.6));
+        }
         card.style.width = nw + 'px';
         card.style.height = nh + 'px';
         if (card.querySelector('iframe')) rescaleIframe(card.querySelector('iframe'));
