@@ -1,15 +1,13 @@
 # kinght-html-ppt-skill
-
-面向正式汇报、技术分享和产品叙事的 HTML PPT Agent Skill。  
-它基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 的主题、模板、布局、动画和演讲者模式能力，进一步沉淀各种交付级场景的版式规范、数据动效、页面导览和交付检查流程，让 AI 生成的 HTML 演示稿更接近可直接投屏的正式成果。
-
-![HTML PPT Studio preview](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/hero.gif)
-
-
-> 一款专业级的 AgentSkill，让 AI 做出真正能打的 HTML 演示文稿。
+> 一款高质量的 AgentSkill，让 AI 做出真正能打的 HTML 演示文稿。
 > **36 套主题**、**15 套完整 deck 模板**、**31 种页面布局**、**47 个动效**
 > (27 个 CSS + 20 个 Canvas FX)，加上全新的 **演讲者模式** —— 像素级
 > 完美预览 + 逐字稿提词器 + 计时器。纯静态 HTML/CSS/JS，无需构建。
+> 面向正式汇报、技术分享和产品叙事的** HTML PPT Agent Skill**。    
+
+它基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 的主题、模板、布局、动画和演讲者模式能力，进一步沉淀各种交付级场景的版式规范、数据动效、页面导览和交付检查流程，让 AI 生成的 HTML 演示稿更接近可直接投屏的正式成果。
+
+![HTML PPT Studio preview](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/hero.gif)
 
 ## 产品定位
 
@@ -22,6 +20,18 @@
 - 内置键盘、鼠标滚轮、演讲者备注、侧边导览和页面总览能力。
 
 适用场景包括：产品分享、技术分享、项目复盘、培训课程、发布会材料、汇报、周/月总结和多页图文内容等。
+## Skill 内容一览
+
+| | 数量 | 位置 |
+|---|---|---|
+| 🎤 **演讲者模式** | **新增** | `S` 键 / `?preview=N` |
+| 🎨 **主题** | **36** | `assets/themes/*.css` |
+| 📑 **完整 deck 模板** | **15** | `templates/full-decks/<name>/` |
+| 🧩 **单页布局** | **31** | `templates/single-page/*.html` |
+| ✨ **CSS 动画** | **27** | `assets/animations/animations.css` |
+| 💥 **Canvas FX 动画** | **20** | `assets/animations/fx/*.js` |
+| 🖼️ **Showcase deck** | 4 | `templates/*-showcase.html` |
+| 📸 **验证截图** | 56 | `scripts/verify-output/` |
 
 ## 继承的原始能力
 
