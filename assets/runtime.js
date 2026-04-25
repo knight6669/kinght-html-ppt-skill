@@ -1934,6 +1934,35 @@
     if (bc) bc.postMessage({ type: 'go', idx: idx });
   }
 
+  /* ===== Mouse wheel on CURRENT preview to navigate ===== */
+  (function initCurrentSlideWheel(){
+    var body = document.querySelector('#card-cur .pcard-body');
+    if (!body) return;
+    var wheelAccum = 0;
+    var lastWheelAt = 0;
+    var lastWheelNavAt = 0;
+    var WHEEL_THRESHOLD = 55;
+    var WHEEL_COOLDOWN = 320;
+    body.addEventListener('wheel', function(e){
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      var now = Date.now();
+      if (now - lastWheelAt > 280) wheelAccum = 0;
+      lastWheelAt = now;
+      var delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (Math.abs(delta) < 1) return;
+      wheelAccum += delta;
+      e.preventDefault();
+      if (Math.abs(wheelAccum) < WHEEL_THRESHOLD) return;
+      if (now - lastWheelNavAt < WHEEL_COOLDOWN) {
+        wheelAccum = 0;
+        return;
+      }
+      go(idx + (wheelAccum > 0 ? 1 : -1));
+      wheelAccum = 0;
+      lastWheelNavAt = now;
+    }, { passive: false });
+  })();
+
   /* ===== Buttons ===== */
   document.getElementById('btn-prev').addEventListener('click', function(){ go(idx - 1); });
   document.getElementById('btn-next').addEventListener('click', function(){ go(idx + 1); });
