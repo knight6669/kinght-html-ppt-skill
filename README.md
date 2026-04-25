@@ -1,9 +1,15 @@
 # kinght-html-ppt-skill
 
-面向中文正式汇报、技术分享和产品叙事的 HTML PPT Agent Skill。  
+面向正式汇报、技术分享和产品叙事的 HTML PPT Agent Skill。  
 它基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 的主题、模板、布局、动画和演讲者模式能力，进一步沉淀各种交付级场景的版式规范、数据动效、页面导览和交付检查流程，让 AI 生成的 HTML 演示稿更接近可直接投屏的正式成果。
 
 ![HTML PPT Studio preview](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/hero.gif)
+
+
+> 一款专业级的 AgentSkill，让 AI 做出真正能打的 HTML 演示文稿。
+> **36 套主题**、**15 套完整 deck 模板**、**31 种页面布局**、**47 个动效**
+> (27 个 CSS + 20 个 Canvas FX)，加上全新的 **演讲者模式** —— 像素级
+> 完美预览 + 逐字稿提词器 + 计时器。纯静态 HTML/CSS/JS，无需构建。
 
 ## 产品定位
 
@@ -15,7 +21,7 @@
 - 强化数字、条形图、SVG 流程图等数据可视化动效。
 - 内置键盘、鼠标滚轮、演讲者备注、侧边导览和页面总览能力。
 
-适用场景包括：汇报、产品分享、技术分享、头脑风暴、项目复盘、培训课程、发布会材料和多页图文内容。
+适用场景包括：产品分享、技术分享、项目复盘、培训课程、发布会材料、汇报、周/月总结和多页图文内容等。
 
 ## 继承的原始能力
 
@@ -42,7 +48,7 @@
 
 ## 增强能力
 
-### 1. 正式汇报默认规范
+### 1. 正式默认规范
 
 - 默认使用 16:10 演示比例，适合会议室大屏和常规投屏。
 - 默认交付 HTML 演示稿，不强制转成 PPTX。
@@ -133,52 +139,68 @@ Windows PowerShell：
 Start-Process .\examples\my-report\index.html
 ```
 
-向 AI 发起任务时，可以这样描述：
+装好后，任何支持 AgentSkill 的 agent（Claude Code / Codex / Cursor / OpenClaw 等）
+都能用这套能力做 PPT。对 agent 说：
 
-```text
-基于这份材料生成一份 18 页正式汇报用 HTML PPT。
-要求 16:10、每页有隐藏演讲备注、数据页有数字递增和条形增长动画、
-页面可用滚轮切换，E 键打开页面导览，O 键打开页面总览。
-不要在页面中出现来源、制作过程或工具相关描述。
+> 基于这份材料生成一份 18 页正式汇报用 HTML PPT。
+> 要求 16:10、每页有隐藏演讲备注、数据页有数字递增和条形增长动画、
+> 页面可用滚轮切换，E 键打开页面导览，O 键打开页面总览。
+> 不要在页面中出现来源、制作过程或工具相关描述。
+> "做一个小红书图文，9 张，白底柔和风"
+> "做一份带演讲者模式的产品分享，我想要有逐字稿"
+
+
+## 目录结构
+
 ```
-
-## 建议目录结构
-
-```text
-kinght-html-ppt-skill/
-├── SKILL.md
-├── README.md
-├── LICENSE
+knight-html-ppt-skill/
+├── SKILL.md                      agent 入口
+├── README.md                     英文 README
+├── README.zh-CN.md               本文件
+├── references/                   详细文档
+│   ├── themes.md                 36 主题 + 使用场景
+│   ├── layouts.md                31 布局
+│   ├── animations.md             27 CSS + 20 FX 目录
+│   ├── full-decks.md             15 完整 deck 模板
+│   ├── presenter-mode.md         🎤 演讲者模式 + 逐字稿指南
+│   └── authoring-guide.md        完整工作流
 ├── assets/
-│   ├── base.css
-│   ├── fonts.css
-│   ├── runtime.js
-│   ├── themes/
+│   ├── base.css                  共享 tokens + 基础组件
+│   ├── fonts.css                 web 字体引入
+│   ├── runtime.js                键盘导航 + 演讲者模式 + 总览
+│   ├── themes/*.css              36 主题 token 文件
 │   └── animations/
+│       ├── animations.css        27 个命名 CSS 动画
+│       ├── fx-runtime.js         进入 slide 自动初始化 [data-fx]
+│       └── fx/*.js               20 个 Canvas FX 模块
 ├── templates/
-│   ├── deck.html
-│   ├── full-decks/
-│   └── single-page/
-├── references/
-│   ├── authoring-guide.md
-│   ├── themes.md
-│   ├── layouts.md
-│   ├── animations.md
-│   └── presenter-mode.md
+│   ├── deck.html                 最小起步模板
+│   ├── theme-showcase.html       iframe 隔离的主题 tour
+│   ├── layout-showcase.html      全部 31 布局
+│   ├── animation-showcase.html   47 动画 slide
+│   ├── full-decks-index.html     15 deck gallery
+│   ├── full-decks/<name>/        15 个 scoped 多页 deck 模板
+│   └── single-page/*.html        31 个布局文件（带示例数据）
 ├── scripts/
-│   ├── new-deck.sh
-│   ├── new-deck.ps1
-│   ├── render.sh
-│   └── render.ps1
-└── examples/
+│   ├── new-deck.sh               脚手架
+│   ├── render.sh                 headless Chrome → PNG
+│   └── verify-output/            56 张自测截图
+└── examples/demo-deck/           完整可运行的示例 deck
 ```
 
-## 设计原则
+## 设计原则/理念
 
 - 把“能生成”升级为“能汇报”：默认关注投屏、可读性、字体大小、数据可信和交互稳定。
 - 把“页面好看”升级为“现场好用”：支持快速定位页面、回到当前页、查看备注和总览缩略图。
 - 把“动画装饰”升级为“数据表达”：数字、条形图和 SVG 动效优先解释信息关系。
 - 把“交付 HTML”升级为“交付可验收成果”：每次交付前做截图、文字、字体和交互检查。
+- **Token 驱动的设计系统。** 所有颜色、圆角、阴影、字体决策都在
+  `assets/base.css` + 当前主题文件里。改一个变量，整份 deck 优雅地重排。
+- **Iframe 隔离预览。** 主题 / 布局 / 完整 deck 的 showcase 都用 `<iframe>`，
+  确保每个预览都是真实、独立的渲染结果。
+- **零构建。** 纯静态 HTML/CSS/JS。只有 webfont / highlight.js / chart.js
+  (可选) 走 CDN。
+- **资深设计师的默认值。** 字号规律、间距节奏、渐变、卡片处理都有态度 ——
 
 ## Roadmap
 
