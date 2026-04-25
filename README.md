@@ -45,7 +45,20 @@
 | 动画体系 | 27 个 CSS 动画 + 20 个 Canvas FX 动效 |
 | 演讲者模式 | 支持当前页、下一页、演讲稿和计时器的独立演示窗口 |
 | 静态交付 | 纯 HTML/CSS/JS，无需构建步骤 |
+### 36 套主题
 
+`minimal-white`、`editorial-serif`、`soft-pastel`、`sharp-mono`、`arctic-cool`、
+`sunset-warm`、`catppuccin-latte`、`catppuccin-mocha`、`dracula`、`tokyo-night`、
+`nord`、`solarized-light`、`gruvbox-dark`、`rose-pine`、`neo-brutalism`、
+`glassmorphism`、`bauhaus`、`swiss-grid`、`terminal-green`、`xiaohongshu-white`、
+`rainbow-gradient`、`aurora`、`blueprint`、`memphis-pop`、`cyberpunk-neon`、
+`y2k-chrome`、`retro-tv`、`japanese-minimal`、`vaporwave`、`midcentury`、
+`corporate-clean`、`academic-paper`、`news-broadcast`、`pitch-deck-vc`、
+`magazine-bold`、`engineering-whiteprint`
+
+每个主题都是一份纯 CSS token 文件 —— 只需要换一行 `<link>` 就能给整份 deck
+换皮。在 `templates/theme-showcase.html` 里可以浏览全部（每一页用独立 iframe
+渲染，避免样式互相污染）。
 | Presenter Mode | Themes |
 | --- | --- |
 | ![Presenter mode](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/presenter-mode.png) | ![Themes](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/themes.png) |
@@ -70,28 +83,22 @@
 
 ### 2. 数据页动效
 
-针对领导汇报中常见的数字、条形图和流程图，固化了更稳定的入场动效：
+针对演示汇报中常见的数字、条形图和流程图，固化了更稳定的入场动效：
 
 - 数字指标从 `0` 递增到目标值。
 - 条形图、进度条、对比条从 `0` 宽度增长到目标长度。
 - SVG 流程、数据流向、治理闭环使用路径描边、脉冲、扫描和流动效果。
-- 动效在切回页面时重新播放，适合现场讲解和反复定位。
-- 动画保持克制，服务于数据理解，不做炫技型大面积动效。
 
 ### 3. 页面导航体验
 
 在原有键盘翻页基础上，增加了更适合现场演示的页面定位能力：
 
-- 鼠标滚轮可切换页面，并缩短误触后的冷却时间，让翻页更跟手。
 - `E` 键打开左侧页面导览栏，展示页面缩略图、页码和标题。
-- 点击暗淡失焦的背景可返回当前页面。
-- 鼠标移到最左侧窄悬停区时，先出现细高亮发光条，再经过微小延迟打开导览栏。
-- 通过鼠标悬停打开的导览栏，在鼠标移开后自动收起。
+- 鼠标移到最左侧窄悬停区时，先出现细高亮发光条，延迟打开导览栏，在鼠标移开后自动收起。
 
 ### 4. 全屏页面总览
 
 - `O` 键进入页面总览。
-- 总览视图使用真实页面缩略图铺满整个屏幕，而不是占位标题卡。
 - 缩略图根据页面数量自动计算行列，适配 8 页、18 页、20 页或更多页面。
 - 点击任意缩略图即可跳转到对应页面。
 
@@ -148,13 +155,13 @@ Start-Process .\examples\my-report\index.html
 装好后，任何支持 AgentSkill 的 agent（Claude Code / Codex / Cursor / OpenClaw 等）
 都能用这套能力做 PPT。对 agent 说：
 
-> 基于这份材料生成一份 18 页正式汇报用 HTML PPT。
-> 要求 16:10、每页有隐藏演讲备注、数据页有数字递增和条形增长动画、
-> 页面可用滚轮切换，E 键打开页面导览，O 键打开页面总览。
-> 不要在页面中出现来源、制作过程或工具相关描述。
 > "做一个小红书图文，9 张，白底柔和风"
-> "做一份带演讲者模式的产品分享，我想要有逐字稿"
+> "做一份带演讲者模式的产品分享，我想要有逐字稿"  
+> "做一份 8 页的技术分享 slides，用 cyberpunk 主题"
+> "把这段 outline 变成投资人 pitch deck"
 
+> "基于这份材料生成一份 18 页正式汇报用 HTML PPT"
+> "要求 16:10、每页有隐藏演讲备注、数据页有数字递增和条形增长动画"
 
 ## 目录结构
 
@@ -211,7 +218,7 @@ knight-html-ppt-skill/
 ## Roadmap
 
 - 增加场景汇报、数据型分析、项目复盘等专用 full-deck 模板。
-- 增加更完整的自动质检脚本，输出页面溢出、小字号和禁用词报告。
+- 增加更完整的自动质检脚本，输出页面溢出、小字号和禁用词。
 - 增加 PDF / PPTX 导出辅助流程。
 - 增加更丰富的中文图表组件和数据页模板。
 - 为页面导览、总览和演讲者模式提供更多主题外观。
