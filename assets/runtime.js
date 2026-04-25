@@ -1402,31 +1402,39 @@
   .notes-edit-status.is-saved { color: #3fb950; }
 
   /* Timer card */
+  .pcard-timer { min-height: 204px; }
   .pcard-timer .pcard-body {
-    display: flex; flex-direction: column; gap: 14px;
-    padding: 30px 24px; justify-content: center;
+    display: flex; flex-direction: column; gap: clamp(8px, 1.1vh, 12px);
+    padding: clamp(14px, 1.6vh, 22px) 24px 18px;
+    justify-content: center;
+    overflow: hidden;
   }
   .timer-display {
     font-family: "SF Mono", "JetBrains Mono", monospace;
-    font-size: clamp(46px, 4.2vw, 76px); font-weight: 700;
+    font-size: clamp(42px, 3.65vw, 66px); font-weight: 700;
     color: #3fb950;
-    letter-spacing: .04em;
-    line-height: 1;
+    letter-spacing: .03em;
+    line-height: .96;
+    white-space: nowrap;
+    flex-shrink: 1;
   }
   .timer-row {
     display: flex; align-items: center; gap: 12px;
-    font-size: 14px; color: #8b949e;
+    font-size: 13px; color: #8b949e;
+    flex-shrink: 0;
   }
   .timer-row .label { font-size: 10px; letter-spacing: .15em; text-transform: uppercase; color: #6e7681; }
   .timer-row .val { color: #e6edf3; font-weight: 600; font-family: "SF Mono", monospace; }
-  .timer-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .timer-controls { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
   .timer-btn {
     background: rgba(255,255,255,.06);
     border: 1px solid rgba(255,255,255,.1);
     color: #e6edf3;
-    padding: 6px 12px;
+    padding: 6px 11px;
     border-radius: 6px;
     font-size: 12px;
+    line-height: 1.1;
+    min-height: 30px;
     cursor: pointer;
     font-family: inherit;
   }
@@ -1615,22 +1623,26 @@
     var availableH = Math.max(480, h - pad * 2);
     if (availableW < 980) {
       var oneW = availableW;
-      var curHSmall = Math.min(availableH * 0.42, header + oneW / 1.6);
-      var nextHSmall = Math.min(availableH * 0.22, header + oneW / 1.6);
-      var timerHSmall = Math.max(160, availableH * 0.18);
+      var timerHSmall = Math.min(230, Math.max(204, availableH * 0.22));
+      var notesMinSmall = Math.min(180, Math.max(110, availableH * 0.22));
+      var previewSpace = Math.max(180, availableH - timerHSmall - notesMinSmall - gap * 3);
+      var curHSmall = Math.min(previewSpace * 0.64, header + oneW / 1.6);
+      var nextHSmall = Math.min(previewSpace - curHSmall, header + oneW / 1.6);
+      var notesHSmall = Math.max(96, availableH - curHSmall - nextHSmall - timerHSmall - gap * 3);
       return {
         'card-cur':   { x: pad, y: pad, w: oneW, h: Math.round(curHSmall) },
         'card-nxt':   { x: pad, y: Math.round(pad + curHSmall + gap), w: oneW, h: Math.round(nextHSmall) },
-        'card-notes': { x: pad, y: Math.round(pad + curHSmall + gap + nextHSmall + gap), w: oneW, h: Math.round(availableH - curHSmall - nextHSmall - timerHSmall - gap * 3) },
+        'card-notes': { x: pad, y: Math.round(pad + curHSmall + gap + nextHSmall + gap), w: oneW, h: Math.round(notesHSmall) },
         'card-timer': { x: pad, y: Math.round(h - pad - timerHSmall), w: oneW, h: Math.round(timerHSmall) }
       };
     }
     var columnW = availableW - gap;
     var leftW = Math.round(columnW * 0.66);
     var rightW = columnW - leftW;
-    var timerMinH = Math.min(170, Math.max(132, availableH * 0.15));
-    var curH = Math.round(header + leftW / 1.6);
-    curH = Math.max(360, Math.min(curH, availableH - gap - timerMinH));
+    var timerMinH = Math.min(238, Math.max(204, availableH * 0.21));
+    var curMaxH = Math.max(280, availableH - gap - timerMinH);
+    var curH = Math.min(Math.round(header + leftW / 1.6), curMaxH);
+    curH = Math.max(Math.min(360, curMaxH), curH);
     var timerH = availableH - curH - gap;
     var nextH = Math.round(header + rightW / 1.6);
     nextH = Math.max(260, Math.min(nextH, availableH - gap - 320));
