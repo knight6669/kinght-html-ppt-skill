@@ -215,3 +215,7 @@ knight-html-ppt-skill/
 本项目基于 [lewislulu/html-ppt-skill](https://github.com/lewislulu/html-ppt-skill) 的 MIT 许可代码与设计体系进行扩展。README 中的部分预览图来自上游项目的 `docs/readme/` 目录，用于说明继承能力；后续可替换为本项目自己的截图。
 
 请在发布仓库时保留原项目许可和致谢信息。本项目新增部分默认按 MIT License 发布，除非你在仓库中另行声明。
+
+## 关于作者
+
+Knight | 贺 | 持续探索 vibe-coding
