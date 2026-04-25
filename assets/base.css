@@ -10,6 +10,7 @@
   --text-1: #111216;
   --text-2: #55596a;
   --text-3: #8a8f9e;
+  --text-inverse: var(--bg);
   --accent: #3b6cff;
   --accent-2: #7a5cff;
   --accent-3: #ff5c8a;

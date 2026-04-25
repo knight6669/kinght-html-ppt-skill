@@ -26,7 +26,7 @@
 .tpl-xhs-post .h1{font-size:72px;line-height:1.1;font-weight:900;letter-spacing:-.02em;color:var(--text-1)}
 .tpl-xhs-post .h2{font-size:54px;line-height:1.15;font-weight:800;letter-spacing:-.015em;color:var(--text-1)}
 .tpl-xhs-post .h3{font-size:36px;font-weight:800;color:var(--text-1)}
-.tpl-xhs-post .page-dot{position:absolute;top:40px;right:48px;background:var(--text-1);color:#fff;border-radius:999px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;z-index:2}
+.tpl-xhs-post .page-dot{position:absolute;top:40px;right:48px;background:var(--text-1);color:var(--text-inverse,var(--bg));border-radius:999px;padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;z-index:2}
 .tpl-xhs-post .sticker{position:absolute;padding:10px 18px;background:#fff;border:2.5px dashed var(--text-1);border-radius:18px;font-weight:800;font-size:18px;color:var(--text-1);transform:rotate(-3deg);box-shadow:4px 4px 0 var(--text-1)}
 .tpl-xhs-post .sticker.pink{background:#ffd3e0}
 .tpl-xhs-post .sticker.yellow{background:#ffe788}

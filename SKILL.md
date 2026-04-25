@@ -161,6 +161,10 @@ Only after those are clear, scaffold the deck and start writing.
 - **Use tokens, not literal colors.** Every color, radius, shadow should come
   from CSS variables defined in `assets/base.css` and overridden by a theme.
   Good: `color: var(--text-1)`. Bad: `color: #111`.
+- **Use `--text-inverse` for inverted elements.** If a pill, badge, or CTA uses
+  `background: var(--text-1)`, set its text to
+  `color: var(--text-inverse, var(--bg))`; don't use `--surface` as text color
+  because glass/dark themes may define it as translucent.
 - **Don't invent new layout files.** Prefer composing existing ones. Only add
   a new `templates/single-page/*.html` if none of the 30 fit.
 - **Respect chrome slots.** `.deck-header`, `.deck-footer`, `.slide-number`
