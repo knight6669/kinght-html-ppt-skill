@@ -36,7 +36,7 @@ text/notes into a presentable deck. Prefer this over building from scratch.
 
 ### 🎤 Presenter Mode (演讲者模式 + 逐字稿)
 
-If the user mentions any of: **演讲 / 分享 / 讲稿 / 逐字稿 / speaker notes / presenter view / 演讲者视图 / 提词器**, or says things like "我要去给团队讲 xxx", "要做一场技术分享", "怕讲不流畅", "想要一份带逐字稿的 PPT" — **use the `presenter-mode-reveal` full-deck template** and write 150–300 words of 逐字稿 in each slide's `<aside class="notes">`.
+If the user mentions any of: **演讲 / 分享 / 讲稿 / 逐字稿 / speaker notes / presenter view / 演讲者视图 / 提词器**, or says things like "我要去给团队讲 xxx", "要做一场技术分享", "怕讲不流畅", "想要一份带逐字稿的 PPT" — **use the `presenter-mode-reveal` full-deck template** and write 150–300 words of 逐字稿 in each slide's `<aside class="notes">`. In HTML notes, use `<strong>...</strong>` for emphasis; Markdown `**...**` will not reliably render as bold inside the runtime notes panel.
 
 See [references/presenter-mode.md](references/presenter-mode.md) for the full authoring guide including the 3 rules of speaker script writing:
 1. **不是讲稿，是提示信号** — 加粗核心词 + 过渡句独立成段
@@ -79,10 +79,10 @@ tasteful default and confirm.
 
    For every real deck, pick **exactly 3 themes from the full 36-theme
    catalog** based on content, audience, and setting. Put the best fit first:
-   it becomes both `<link id="theme-link" ...>` and the first item in
-   `data-themes`. Do not reuse a fixed theme pack unless it genuinely matches
-   the brief. `soft-pastel` and `aurora` are candidates, not defaults for every
-   presentation.
+   it becomes both `<link id="theme-link" ...>`, `data-theme`, and the first
+   item in `data-themes`. Do not reuse a fixed theme pack unless it genuinely
+   matches the brief. `soft-pastel` and `aurora` are candidates, not defaults
+   for every presentation.
    - Edgy / cyber / launch → `cyberpunk-neon`, `vaporwave`, `y2k-chrome`,
      `neo-brutalism`
 3. **Starting point.** One of the 14 full-deck templates, or scratch? Point
@@ -115,7 +115,7 @@ Only after those are clear, scaffold the deck and start writing.
    the deck's audience, tone, and topic. Hard-code the first as the default
    theme and list all 3 in `data-themes`:
    ```html
-   <html data-themes="corporate-clean,soft-pastel,aurora" data-theme-base="../assets/themes/">
+   <html data-theme="corporate-clean" data-themes="corporate-clean,soft-pastel,aurora" data-theme-base="../assets/themes/">
    <link rel="stylesheet" id="theme-link" href="../assets/themes/corporate-clean.css">
    ```
    Catalog in [references/themes.md](references/themes.md).
@@ -169,13 +169,31 @@ Only after those are clear, scaffold the deck and start writing.
   a new `templates/single-page/*.html` if none of the 30 fit.
 - **Respect chrome slots.** `.deck-header`, `.deck-footer`, `.slide-number`
   and the progress bar are provided by `assets/base.css` + `runtime.js`.
+- **Every slide must have footer chrome.** Add an explicit `.deck-footer` to
+  every `<section class="slide">`, not only cover/closing pages and not via a
+  late runtime patch. The footer must include a short audience-facing footer
+  note on the left and a `.slide-number` on the right with accurate
+  `data-current` / `data-total`, before the hidden notes block:
+  ```html
+  <div class="deck-footer">
+    <span>Short footer note</span>
+    <span class="slide-number" data-current="N" data-total="TOTAL"></span>
+  </div>
+  ```
+  Keep footer text concise and non-meta: it should describe the talk section,
+  business topic, or takeaway, not the authoring process.
 - **Keyboard-first.** Always include `<script src="../assets/runtime.js"></script>`
   so the deck supports ← →, mouse-wheel navigation, T / A / F / S / O / E, and hash
   deep-links.
 - **Use O as a full-screen thumbnail wall.** `O` should open a whole-page
   overview made from real slide thumbnails, automatically fitting rows/columns
   to the slide count so thumbnails fill the viewport. Avoid placeholder title
-  cards for overview mode.
+  cards for overview mode. The overview header must stay compact, and each
+  card must keep the slide preview area separate from the title/meta strip:
+  scale thumbnails with contain-fit inside the preview-only area, center them
+  there, and prevent overflow on all four sides. Page titles in overview cards
+  should read as unboxed text below the thumbnail; do not wrap the title row in
+  a large capsule/pill container.
 - **Include the E-key thumbnail navigator.** `E` must open a left-side page
   navigator with real slide thumbnails, page numbers, a lightly dimmed
   background, click-to-jump behavior, and automatic scrolling for decks with
@@ -203,6 +221,18 @@ Only after those are clear, scaffold the deck and start writing.
   `<aside class="notes">…</aside>` or `<div class="notes">…</div>`. They must be
   invisible during normal projection and visible only through the notes drawer or
   presenter mode.
+- **Speaker notes must include emphasis markup.** For decks with 演讲稿 /
+  逐字稿 / presenter notes, every slide's notes should include 2–5 concise
+  `<strong>核心提示词</strong>` spans. Bold the words the speaker should notice at
+  a glance: core claims, transitions, numbers, risk warnings, or action verbs.
+  Do not bold whole paragraphs. Keep at least one transition sentence as its own
+  paragraph when the slide needs a speaking turn. Example:
+  ```html
+  <aside class="notes">
+    <p>这一页先抛出核心判断：<strong>AI 替代的是任务，不是完整的人</strong>。</p>
+    <p><strong>过渡：</strong>所以我们接下来不看岗位名，而是拆任务。</p>
+  </aside>
+  ```
 - **NEVER put presenter-only text on the slide itself.** Descriptive text like
   "这一页展示了……" or "Speaker: 这里可以补充……" or small explanatory captions
   aimed at the presenter MUST go inside `<div class="notes">`, NOT as visible
@@ -232,6 +262,62 @@ Only after those are clear, scaffold the deck and start writing.
   footers, badges, labels, and captions must not render below 14px. If content
   does not fit, reduce density, split the slide, or redesign the layout instead
   of shrinking text below 14px.
+- **Keep deck chrome out of content flow.** Do not let `.deck-footer`,
+  `.slide-number`, progress bars, or presenter-only controls get positioned by
+  generic slide-child CSS. If you add rules such as `.slide > * { ... }`, always
+  exclude chrome and decorative layers, for example:
+  ```css
+  .deck .slide > :not(.visual-grid):not(.slide-fx):not(.deck-footer):not(.concept-svg) {
+    position: relative;
+    z-index: 1;
+  }
+  ```
+  Footer summaries should sit at the lower-left; page numbers should be fixed at
+  the lower-right. Do not combine them into the main content layout.
+- **Never show shortcut cheat sheets on the audience slide.** Runtime shortcuts
+  such as `S`, `T`, `E`, `O`, and `F` may exist, but visible shortcut hints,
+  help strips, or presenter-control text should not appear on the projected
+  slides. Put shortcut guidance in notes, final instructions, or external
+  documentation only.
+- **Prevent Grid auto-placement surprises.** Be careful with cards such as
+  `.data-tile.wide`: spanning rows or columns can trigger CSS Grid auto-placement
+  and make cards uneven or misaligned. Unless a deliberate mosaic layout is
+  required, keep metric/card grids uniform with stable tracks and explicit
+  dimensions:
+  ```css
+  .data-board { display: grid; grid-template-columns: repeat(4, 1fr); align-items: stretch; }
+  .data-tile { min-height: 240px; }
+  .data-tile.wide { grid-row: auto; }
+  ```
+  If one card must be wider, prefer an explicit `grid-column` plan and inspect
+  the rendered PNG for row height and baseline alignment.
+- **Use stronger motion, but keep it purposeful.** For polished decks, combine
+  CSS entry motion, restrained micro-interactions, and Canvas FX on high-emphasis
+  pages such as cover, data/trend pages, agent/workflow pages, and closing.
+  Use `data-fx` layers (`neural-net`, `data-stream`, `knowledge-graph`,
+  `orbit-ring`, `constellation`, etc.) as background atmosphere with controlled
+  opacity, masks, and no pointer events. FX should add energy without reducing
+  legibility or making operational/report pages feel decorative.
+- **Add content-aware SVG diagrams when they clarify the message.** Use SVG
+  motion for concepts such as task flow, risk boundaries, tool selection,
+  knowledge assets, loops, and timelines. The graphic should have presence and
+  be recognizable, but it must not compete with cards, tables, or body copy.
+  Prefer an absolute, non-interactive decorative layer with low z-index,
+  restrained opacity, and masks that prevent the graphic from extending into
+  text containers:
+  ```css
+  .concept-svg {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .18;
+    mask-image: linear-gradient(180deg, black 0%, black 70%, transparent 100%);
+  }
+  ```
+  Place large semantic SVGs in empty corners or gutters; avoid placing them
+  behind card grids unless they are very faint and visually separated from the
+  card text. Always inspect light and dark themes because translucent cards can
+  reveal background graphics differently.
 
 ## Final QA before delivery
 
@@ -240,6 +326,9 @@ Before handing off a finished HTML deck:
 - Render all slides to PNG at the target ratio and inspect a contact sheet or
   representative screenshots for overflow, overlap, excessive bottom whitespace,
   and weak vertical alignment.
+- Verify every slide has a visible footer note and page number. Search for
+  `.deck-footer` / `.slide-number` count matching the number of `.slide`
+  sections, and spot-check rendered PNGs for the first, middle, and last slides.
 - Check visible text for prohibited production-process wording such as "来源",
   "制作", "html-ppt", and "markdown".
 - Also search for visible meta/version wording such as "新版", "这版", "本版",
@@ -252,6 +341,14 @@ Before handing off a finished HTML deck:
   mode work. Also verify mouse-wheel navigation: wheel down advances one slide,
   wheel up goes back one slide, and repeated wheel events do not skip multiple
   slides while keeping the cooldown short enough to feel responsive.
+- For decks with 逐字稿, verify every slide has hidden notes and that notes use
+  `<strong>` emphasis on key speaker cues. If notes are plain paragraphs with no
+  emphasis markup, revise them before delivery.
+- In S-key presenter mode, verify `<strong>` cues appear visually emphasized in
+  the SPEAKER SCRIPT panel, normally orange and bold via runtime CSS. If a
+  previously opened deck still shows plain text, clear or version-bump the
+  presenter notes `localStorage` key so stale editable notes do not override the
+  updated `<aside class="notes">` HTML.
 - Use browser automation for DOM/layout/console checks when available. If the
   system Node cannot import Playwright, try the bundled workspace Node modules
   from `load_workspace_dependencies` before declaring browser automation

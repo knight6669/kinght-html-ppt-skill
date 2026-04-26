@@ -389,8 +389,8 @@
       updateOverviewGridFit();
       overview.querySelectorAll('.overview-thumb-stage').forEach(stage => {
         const mini = stage.querySelector('.overview-thumb-deck');
-        if (!mini || !stage.clientWidth) return;
-        const scale = Math.max(stage.clientWidth / overviewBaseWidth, stage.clientHeight / overviewBaseHeight);
+        if (!mini || !stage.clientWidth || !stage.clientHeight) return;
+        const scale = Math.max(0.01, Math.min(stage.clientWidth / overviewBaseWidth, stage.clientHeight / overviewBaseHeight));
         mini.style.left = ((stage.clientWidth - overviewBaseWidth * scale) / 2) + 'px';
         mini.style.top = ((stage.clientHeight - overviewBaseHeight * scale) / 2) + 'px';
         mini.style.transform = 'scale(' + scale + ')';
@@ -401,8 +401,8 @@
       const rect = overview.getBoundingClientRect();
       const width = rect.width || window.innerWidth || 1600;
       const height = rect.height || window.innerHeight || 1000;
-      const inset = 18;
-      const gap = 12;
+      const inset = 12;
+      const gap = 10;
       const availableW = Math.max(1, width - inset * 2);
       const availableH = Math.max(1, height - inset * 2);
       let best = { cols: Math.ceil(Math.sqrt(total)), rows: Math.ceil(Math.sqrt(total)), score: -Infinity };
@@ -542,46 +542,48 @@
 }
 .overview-header {
   position: absolute;
-  top: 18px;
-  left: 18px;
+  top: 10px;
+  left: 12px;
+  right: 12px;
   z-index: 3;
   display: none;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
+  min-height: 26px;
   color: var(--text-1, #111216);
 }
 .overview-title {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  line-height: 1.25;
-  font-weight: 900;
+  gap: 7px;
+  font-size: 14px;
+  line-height: 1.15;
+  font-weight: 850;
 }
 .overview-title::before {
   content: "";
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--overview-accent), var(--overview-accent-2));
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--overview-accent) 16%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--overview-accent) 14%, transparent);
 }
 .overview-count {
   margin-left: auto;
   color: var(--overview-muted);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
 }
 .overview-close {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   border: 1px solid var(--overview-line);
-  border-radius: var(--radius-sm, 12px);
+  border-radius: 9px;
   background: var(--overview-glass);
   color: var(--text-1, #111216);
-  font-size: 25px;
+  font-size: 19px;
   line-height: 1;
   cursor: pointer;
   transition: background 0.18s ease, transform 0.18s ease;
@@ -594,7 +596,7 @@
 }
 .overview-grid {
   position: absolute;
-  inset: 18px;
+  inset: 12px;
   min-height: 0;
   overflow: auto;
   display: grid;
@@ -613,12 +615,14 @@
 .overview-card {
   position: relative;
   display: grid;
+  grid-template-rows: minmax(0, 1fr) 24px;
+  gap: 5px;
   min-width: 0;
   min-height: 0;
-  padding: 0;
+  padding: 6px;
   overflow: hidden;
   border: 1px solid var(--overview-line);
-  border-radius: calc(var(--radius-sm, 12px) + 6px);
+  border-radius: calc(var(--radius-sm, 12px) + 4px);
   background: var(--overview-glass);
   color: var(--text-1, #111216);
   text-align: left;
@@ -652,25 +656,19 @@
     var(--shadow-lg, 0 22px 58px rgba(0, 0, 0, 0.18));
 }
 .overview-thumb-stage {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  inset: auto;
   width: 100%;
   height: 100%;
+  min-height: 0;
   aspect-ratio: auto;
   overflow: hidden;
-  border-radius: 11px;
+  border-radius: 10px;
   background: var(--bg, #fff);
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--border, rgba(0,0,0,.1)) 68%, transparent);
 }
 .overview-card::after {
-  content: "";
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent 58%, color-mix(in srgb, var(--bg, #fff) 54%, transparent));
+  display: none;
 }
 .overview-thumb-deck {
   position: absolute;
@@ -698,53 +696,61 @@
   display: none !important;
 }
 .overview-meta {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
   z-index: 2;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 9px;
+  gap: 7px;
   align-items: center;
-  padding: 7px 9px;
-  border: 1px solid color-mix(in srgb, var(--border, rgba(0,0,0,.1)) 72%, transparent);
-  border-radius: calc(var(--radius-sm, 12px) + 8px);
-  background: color-mix(in srgb, var(--surface, #fff) 84%, transparent);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--text-1, #111216) 10%, transparent);
-  -webkit-backdrop-filter: blur(10px) saturate(1.04);
-  backdrop-filter: blur(10px) saturate(1.04);
+  min-height: 0;
+  height: 24px;
+  padding: 0 3px 1px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .overview-num {
-  min-width: 32px;
-  padding: 3px 7px 4px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--overview-accent) 22%, transparent);
-  background: color-mix(in srgb, var(--overview-accent) 12%, var(--surface, #fff));
+  min-width: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--overview-accent);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.2;
   font-weight: 800;
   text-align: center;
 }
 .overview-card.is-active .overview-num {
-  background: var(--overview-accent);
-  color: var(--bg, #fff);
+  background: transparent;
+  color: var(--overview-accent);
   border-color: transparent;
 }
 .overview-label {
   overflow: hidden;
   color: var(--text-1, #243247);
-  font-size: 13.5px;
-  line-height: 1.35;
+  font-size: 13px;
+  line-height: 1.2;
   font-weight: 750;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 @media (max-width: 900px) {
   .overview-grid {
-    inset: 12px;
+    inset: 10px;
+  }
+  .overview-header {
+    top: 8px;
+    left: 10px;
+    right: 10px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1304,7 +1310,7 @@
       const channelJSON = JSON.stringify(channelName);
       const themeJSON = JSON.stringify(currentTheme || '');
       const storageKey = 'html-ppt-presenter:v5:' + location.pathname;
-      const notesStorageKey = 'html-ppt-presenter-notes:v1:' + location.pathname;
+      const notesStorageKey = 'html-ppt-presenter-notes:v2:' + location.pathname;
       const windowStorageKey = 'html-ppt-presenter-window:v2:' + location.pathname;
 
       // Build the document as a single template string for clarity
@@ -1312,6 +1318,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="data:,">
 <title>Presenter View</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2087,7 +2094,16 @@
     // theme cycling
     const root = document.documentElement;
     const themesAttr = root.getAttribute('data-themes') || document.body.getAttribute('data-themes');
-    const themes = themesAttr ? themesAttr.split(',').map(s=>s.trim()).filter(Boolean) : [];
+    function normalizeThemeName(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const clean = raw.split(/[?#]/)[0].replace(/\\/g, '/');
+      const file = clean.substring(clean.lastIndexOf('/') + 1);
+      return file.replace(/\.css$/i, '').trim();
+    }
+    const themes = themesAttr
+      ? Array.from(new Set(themesAttr.split(',').map(normalizeThemeName).filter(Boolean)))
+      : [];
     let themeIdx = 0;
 
     // Auto-detect theme base path from existing <link id="theme-link">
@@ -2105,6 +2121,8 @@
     }
 
     function applyTheme(name) {
+      name = normalizeThemeName(name);
+      if (!name) return;
       let link = document.getElementById('theme-link');
       if (!link) {
         link = document.createElement('link');
@@ -2117,6 +2135,15 @@
       const ind = document.querySelector('.theme-indicator');
       if (ind) ind.textContent = name;
     }
+    (function initThemeState() {
+      if (!themes.length) return;
+      const existingLink = document.getElementById('theme-link');
+      const currentTheme = normalizeThemeName(root.getAttribute('data-theme')) ||
+        normalizeThemeName(existingLink && (existingLink.getAttribute('href') || existingLink.href));
+      const currentIdx = themes.indexOf(currentTheme);
+      themeIdx = currentIdx >= 0 ? currentIdx : 0;
+      applyTheme(themes[themeIdx]);
+    })();
     function cycleTheme(fromRemote){
       if (!themes.length) return;
       themeIdx = (themeIdx+1) % themes.length;
