@@ -15,10 +15,10 @@
 
 - 用静态 HTML/CSS/JS 交付，可直接在浏览器中打开和演示。
 - 默认适配中文正式汇报，强调清晰、稳重、数据生动和页面不溢出。
-- 保留模板化生产能力，适合由 AI 根据材料快速生成多页演示稿。
+- 保留模板化生产能力，适合根据材料快速生成多页演示稿。
 - 强化数字、条形图、SVG 流程图等数据可视化动效。
 - 内置键盘、鼠标滚轮、演讲者备注、侧边导览和页面总览能力。
-- 可按内容气质精选主题组合，并通过 `T` 键在多主题之间切换。
+- 可按内容精选主题组合，并通过 `T` 键在多主题之间切换。
 
 适用场景包括：产品分享、技术分享、项目复盘、培训课程、发布会材料、汇报、周/月总结和多页图文内容等。
 ## Skill 内容一览
@@ -60,15 +60,49 @@
 每个主题都是一份纯 CSS token 文件 —— 只需要换一行 `<link>` 就能给整份 deck
 换皮。在 `templates/theme-showcase.html` 里可以浏览全部（每一页用独立 iframe
 渲染，避免样式互相污染）。
-| Presenter Mode | Themes |
+|演讲者视图（按S进入） | 主题 |
 | --- | --- |
 | ![Presenter mode](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/presenter-mode.png) | ![Themes](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/themes.png) |
 
-| Templates | Layouts & Animations |
+| 模板 | 布局与动画 |
 | --- | --- |
 | ![Templates](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/templates.png) | ![Layouts](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/layouts.png) |
 
-![Animations](https://raw.githubusercontent.com/lewislulu/html-ppt-skill/main/docs/readme/animations.png)
+### 31 种单页布局
+
+cover · toc · section-divider · bullets · two-column · three-column ·
+big-quote · stat-highlight · kpi-grid · table · code · diff · terminal ·
+flow-diagram · timeline · roadmap · mindmap · comparison · pros-cons ·
+todo-checklist · gantt · image-hero · image-grid · chart-bar · chart-line ·
+chart-pie · chart-radar · arch-diagram · process-steps · cta · thanks
+
+每个布局都带真实的示例数据，拖进 deck 立即看得到效果。
+
+![31 种布局通过真实模板文件自动循环播放](docs/readme/layouts-live.gif)
+
+*大 iframe 直接加载 `templates/single-page/<name>.html` 文件，每 2.8 秒
+自动切换到下一个布局。*
+
+![47 个动效 · 27 CSS + 20 Canvas FX](docs/readme/animations.png)
+
+### 27 个 CSS 动画 + 20 个 Canvas FX
+
+**CSS 动画（轻量）** — 方向性淡入、`rise-in`、`zoom-pop`、`blur-in`、
+`glitch-in`、`typewriter`（打字机）、`neon-glow`（霓虹光晕）、
+`shimmer-sweep`（流光）、`gradient-flow`（渐变流动）、`stagger-list`
+（列表错开入场）、`counter-up`（数字滚动）、`path-draw`（路径绘制）、
+`morph-shape`、`parallax-tilt`、`card-flip-3d`、`cube-rotate-3d`、
+`page-turn-3d`、`perspective-zoom`、`marquee-scroll`、`kenburns`、
+`ripple-reveal`、`spotlight`、…
+
+**Canvas FX（电影级）** — `particle-burst`（粒子爆发）、`confetti-cannon`
+（彩带）、`firework`（烟花）、`starfield`（星空）、`matrix-rain`
+（代码雨）、`knowledge-graph`（力导向知识图谱）、`neural-net`（神经网络
+脉冲）、`constellation`（星座连线）、`orbit-ring`（轨道环）、
+`galaxy-swirl`（星系漩涡）、`word-cascade`、`letter-explode`、
+`chain-react`、`magnetic-field`、`data-stream`、`gradient-blob`、
+`sparkle-trail`、`shockwave`、`typewriter-multi`、`counter-explosion`。
+每一个都是手写的 canvas 模块，进入 slide 时由 `fx-runtime.js` 自动初始化。
 
 ## 增强能力
 
@@ -102,7 +136,7 @@
 
 - `E` 键打开左侧页面导览栏，展示页面缩略图、页码和标题。
 - 导览缩略图采用紧凑排布，不为每页额外套大容器，可在同一屏看到更多页面。
-- 鼠标移到最左侧窄悬停区时，先出现细高亮发光条，延迟打开导览栏，在鼠标移开后自动收起。
+- 鼠标移到最左侧窄悬停区，延迟打开导览栏，在鼠标移开后自动收起。
 
 ### 5. 全屏页面总览
 
@@ -142,7 +176,7 @@
 
 ## 快速开始
 
-安装到支持 Agent Skills 的环境：
+手动 / 安装到支持 Agent Skills 的环境 / git clone 后：
 
 ```bash
 npx skills add https://github.com/knight6669/knight-html-ppt-skill
@@ -229,7 +263,6 @@ knight-html-ppt-skill/
 
 - 增加场景汇报、数据型分析、项目复盘等专用 full-deck 模板。
 - 增加更完整的自动质检脚本，输出页面溢出、小字号和禁用词。
-- 增加 PDF / PPTX 导出辅助流程。
 - 增加更丰富的中文图表组件和数据页模板。
 - 为页面导览、总览和演讲者模式提供更多主题外观。
 
