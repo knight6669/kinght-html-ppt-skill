@@ -108,6 +108,25 @@ Recommended defaults:
 
 Pick one main entry rhythm per slide. Let the content breathe.
 
+## Heading Fit
+
+Main slide headings should use the available content width before you shrink the
+type. On landscape 16:10 decks, avoid narrow title caps like `max-width: 960px`
+or `1040px` unless the layout intentionally uses a narrow editorial column. A
+safer default is:
+
+```css
+.deck-name .h2 {
+  max-width: min(1360px, 100%);
+  line-height: 1.12;
+}
+```
+
+Check in a browser at the target viewport, usually `1600x1000`: medium-length
+Chinese headings should not wrap when there is obvious empty space to the right.
+If a heading must wrap, make it a deliberate semantic break; do not use global
+`white-space: nowrap`, because truly long titles still need to wrap safely.
+
 ## 7. Add Canvas FX
 
 Canvas FX should be a subtle background layer, not the main content. Use them

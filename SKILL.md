@@ -248,6 +248,16 @@ Only after those are clear, scaffold the deck and start writing.
   "制作过程", "生成过程", "本页用于", or "这一页展示". If such guidance is useful,
   move it into hidden speaker notes and rewrite visible copy as audience-facing
   business content.
+- **Let main slide headings use the content width.** Do not accidentally cap
+  `.h2` / main page titles to a narrow block such as `960px`-`1040px` on a
+  16:10 deck when the slide has open horizontal space. A good default for
+  landscape decks is `max-width: min(1360px, 100%)` inside the content area,
+  with line-height around `1.1`-`1.18`. Short and medium Chinese headings that
+  visually fit the slide should stay on one line; if a title wraps, it should be
+  an intentional semantic break, not a side effect of a too-small max-width.
+  Do not apply global `white-space: nowrap`; for genuinely long titles, reduce
+  the title slightly or add a page-specific class after checking it does not
+  overflow.
 - **Use data motion for data-heavy pages.** Visible data numbers should animate
   from `0` to the target value on slide enter. Bar charts, progress bars, and
   KPI tracks should grow from zero width/height on slide enter. SVG diagrams
@@ -352,6 +362,11 @@ Before handing off a finished HTML deck:
   mode work. Also verify mouse-wheel navigation: wheel down advances one slide,
   wheel up goes back one slide, and repeated wheel events do not skip multiple
   slides while keeping the cooldown short enough to feel responsive.
+- Verify main heading fit in a real browser at the target deck viewport,
+  typically `1600x1000`. For each `.h2` / main title, check for accidental
+  wrapping and horizontal overflow. Medium-length headings should not wrap just
+  because a local style set a narrow `max-width`; expand the heading width before
+  reducing font size.
 - For decks with 逐字稿, verify every slide has hidden notes and that notes use
   `<strong>` emphasis on key speaker cues. If notes are plain paragraphs with no
   emphasis markup, revise them before delivery.
