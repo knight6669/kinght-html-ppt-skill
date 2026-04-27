@@ -53,6 +53,15 @@
     url.hash = '';
     return url.href;
   }
+  function makePresenterNotesFingerprint(slideMeta) {
+    const text = slideMeta.map(item => (item.title || '') + '\n' + (item.notes || '')).join('\n---\n');
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i++) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(36);
+  }
 
   ready(function () {
     const deck = document.querySelector('.deck');
@@ -137,8 +146,11 @@
       });
       const presenterTheme = getQueryParam('theme') ||
         document.documentElement.getAttribute('data-theme') || '';
+      const notesVersionAttr = ((document.documentElement && document.documentElement.getAttribute('data-notes-version')) ||
+        (document.body && document.body.getAttribute('data-notes-version')) || '').trim();
+      const notesVersion = [notesVersionAttr, makePresenterNotesFingerprint(slideMeta)].filter(Boolean).join(':');
       document.open();
-      document.write(buildPresenterHTML(deckUrl, slideMeta, total, presenterOnlyIdx, CHANNEL_NAME, presenterTheme));
+      document.write(buildPresenterHTML(deckUrl, slideMeta, total, presenterOnlyIdx, CHANNEL_NAME, presenterTheme, notesVersion));
       document.close();
       return;
     }
@@ -174,9 +186,8 @@
     injectOverviewStyles();
     const overviewItems = [];
     const overviewBaseWidth = 1600;
-    const deckRectForOverview = deck.getBoundingClientRect();
-    const overviewAspect = (deckRectForOverview.width && deckRectForOverview.height) ? (deckRectForOverview.width / deckRectForOverview.height) : 1.6;
-    const overviewBaseHeight = Math.round(overviewBaseWidth / overviewAspect);
+    const overviewBaseHeight = 1000;
+    const overviewAspect = overviewBaseWidth / overviewBaseHeight;
     let overview = document.querySelector('.overview');
     if (!overview) {
       overview = document.createElement('div');
@@ -240,9 +251,8 @@
     injectPageNavigatorStyles();
     const pageNavItems = [];
     const pageNavBaseWidth = 1600;
-    const deckRectForNav = deck.getBoundingClientRect();
-    const pageNavAspect = (deckRectForNav.width && deckRectForNav.height) ? (deckRectForNav.width / deckRectForNav.height) : 1.6;
-    const pageNavBaseHeight = Math.round(pageNavBaseWidth / pageNavAspect);
+    const pageNavBaseHeight = 1000;
+    const pageNavAspect = pageNavBaseWidth / pageNavBaseHeight;
     let pageNavigator = document.querySelector('.page-navigator');
     if (!pageNavigator) pageNavigator = document.createElement('div');
     pageNavigator.classList.add('page-navigator');
@@ -1304,13 +1314,15 @@
       presenterWin.focus();
     }
 
-    function buildPresenterHTML(deckUrl, slideMeta, total, startIdx, channelName, currentTheme) {
+    function buildPresenterHTML(deckUrl, slideMeta, total, startIdx, channelName, currentTheme, notesVersion) {
       const metaJSON = JSON.stringify(slideMeta);
       const deckUrlJSON = JSON.stringify(deckUrl);
       const channelJSON = JSON.stringify(channelName);
       const themeJSON = JSON.stringify(currentTheme || '');
       const storageKey = 'html-ppt-presenter:v5:' + location.pathname;
-      const notesStorageKey = 'html-ppt-presenter-notes:v2:' + location.pathname;
+      const notesVersionRaw = (notesVersion || '').trim();
+      const notesVersionSuffix = notesVersionRaw ? ':' + notesVersionRaw.replace(/[^a-zA-Z0-9_.-]/g, '_') : '';
+      const notesStorageKey = 'html-ppt-presenter-notes:v3' + notesVersionSuffix + ':' + location.pathname;
       const windowStorageKey = 'html-ppt-presenter-window:v2:' + location.pathname;
 
       // Build the document as a single template string for clarity
