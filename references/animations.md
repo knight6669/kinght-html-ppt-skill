@@ -47,7 +47,16 @@ a random animation on the current page.
 Counter markup:
 ```html
 <span class="counter" data-to="1248">0</span>
+<strong class="counter" data-to="88" data-suffix="%">0%</strong>
+<strong class="counter" data-prefix="$" data-to="285.9" data-decimals="1" data-suffix="B">$0.0B</strong>
 ```
+
+Use `.counter` for every prominent KPI/stat number instead of leaving static
+text like `88%` or `$285.9B`. The runtime supports `data-prefix`,
+`data-suffix`, `data-decimals`, `data-from`, and `data-dur`; it renders final
+values in previews/thumbnails and counts from zero on slide enter. For KPI
+cards, put `.counter` on the visible large-number element itself, not on a
+nested generic `<span>` that may inherit small label styles.
 
 ## SVG / geometry
 

@@ -53,6 +53,58 @@
     url.hash = '';
     return url.href;
   }
+  function getCounterConfig(el) {
+    const targetRaw = String(el.getAttribute('data-to') || el.textContent || '').replace(/,/g, '');
+    const target = parseFloat(targetRaw);
+    if (!Number.isFinite(target)) return null;
+    const fromRaw = String(el.getAttribute('data-from') || '0').replace(/,/g, '');
+    const from = Number.isFinite(parseFloat(fromRaw)) ? parseFloat(fromRaw) : 0;
+    const text = String(el.textContent || '').trim();
+    const match = text.match(/^([^0-9+\-.,]*)([-+]?\d[\d,]*(?:\.\d+)?)(.*)$/);
+    const prefix = el.getAttribute('data-prefix') ?? (match ? match[1] : '');
+    const suffix = el.getAttribute('data-suffix') ?? (match ? match[3] : '');
+    const decimalsAttr = el.getAttribute('data-decimals');
+    const decimalMatch = targetRaw.match(/\.(\d+)/);
+    const decimals = decimalsAttr !== null
+      ? Math.max(0, Math.min(6, parseInt(decimalsAttr, 10) || 0))
+      : (decimalMatch ? Math.min(6, decimalMatch[1].length) : 0);
+    const dur = Math.max(0, parseInt(el.getAttribute('data-dur') || '1200', 10) || 1200);
+    return { target, from, prefix, suffix, decimals, dur };
+  }
+  function formatCounterValue(value, cfg) {
+    const number = cfg.decimals > 0 ? value.toFixed(cfg.decimals) : String(Math.round(value));
+    return cfg.prefix + number + cfg.suffix;
+  }
+  function setCounterValue(el, value, cfg) {
+    const conf = cfg || getCounterConfig(el);
+    if (!conf) return;
+    el.textContent = formatCounterValue(value, conf);
+  }
+  function finalizeCounters(root) {
+    root.querySelectorAll('.counter').forEach(el => {
+      const cfg = getCounterConfig(el);
+      if (cfg) setCounterValue(el, cfg.target, cfg);
+    });
+  }
+  function animateCounters(root) {
+    root.querySelectorAll('.counter').forEach(el => {
+      const cfg = getCounterConfig(el);
+      if (!cfg) return;
+      const runId = String((parseInt(el.getAttribute('data-counter-run') || '0', 10) || 0) + 1);
+      el.setAttribute('data-counter-run', runId);
+      const start = performance.now();
+      setCounterValue(el, cfg.from, cfg);
+      function tick(now) {
+        if (el.getAttribute('data-counter-run') !== runId) return;
+        const t = cfg.dur === 0 ? 1 : Math.min(1, (now - start) / cfg.dur);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const value = cfg.from + (cfg.target - cfg.from) * eased;
+        setCounterValue(el, value, cfg);
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
   function makePresenterNotesFingerprint(slideMeta) {
     const text = slideMeta.map(item => (item.title || '') + '\n' + (item.notes || '')).join('\n---\n');
     let hash = 2166136261;
@@ -89,6 +141,7 @@
         });
       }
       showSlide(previewOnlyIdx);
+      finalizeCounters(slides[previewOnlyIdx]);
       /* Hide chrome that the presenter shouldn't see in preview */
       const hideSel = '.progress-bar, .notes-overlay, .overview, .notes, aside.notes, .speaker-notes';
       document.querySelectorAll(hideSel).forEach(el => { el.style.display = 'none'; });
@@ -377,8 +430,8 @@
       clone.setAttribute('aria-hidden', 'true');
       clone.querySelectorAll('.notes, aside.notes, .speaker-notes, script, style').forEach(el => el.remove());
       clone.querySelectorAll('.counter').forEach(el => {
-        const target = el.getAttribute('data-to');
-        if (target) el.textContent = target;
+        const cfg = getCounterConfig(el);
+        if (cfg) setCounterValue(el, cfg.target, cfg);
       });
       clone.querySelectorAll('svg text[data-number-original]').forEach(el => {
         el.textContent = el.getAttribute('data-number-original') || el.textContent;
@@ -1166,19 +1219,7 @@
       });
 
       // counter-up
-      slides[n].querySelectorAll('.counter').forEach(el => {
-        const target = parseFloat(el.getAttribute('data-to')||el.textContent);
-        const dur = parseInt(el.getAttribute('data-dur')||'1200',10);
-        const start = performance.now();
-        const from = 0;
-        function tick(now){
-          const t = Math.min(1,(now-start)/dur);
-          const v = from + (target-from)*(1-Math.pow(1-t,3));
-          el.textContent = (target % 1 === 0) ? Math.round(v) : v.toFixed(1);
-          if (t<1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      });
+      animateCounters(slides[n]);
 
       // Broadcast to other window (audience ↔ presenter)
       if (!fromRemote && bc) {

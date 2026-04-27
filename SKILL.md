@@ -254,6 +254,17 @@ Only after those are clear, scaffold the deck and start writing.
   should use restrained path-draw, dash, pulse, scan, or flow animations where
   they clarify process or data movement. Animations should replay when returning
   to a slide.
+- **Never leave KPI numbers as static text.** Any prominent metric, percentage,
+  money value, count, or benchmark on an audience slide must use
+  `.counter data-to="..."` with visible initial text set to `0`. Preserve
+  formatting with `data-prefix`, `data-suffix`, and `data-decimals`. Put the
+  `.counter` class on the same element that owns the large-number typography,
+  such as `<strong class="counter" data-prefix="$" data-to="285.9" data-decimals="1" data-suffix="B">$0.0B</strong>`.
+  Do not wrap a counter in a generic `<span>` inside KPI cards if local CSS uses
+  selectors like `.data-tile span`; that can accidentally shrink the number.
+  In previews and thumbnail navigators the runtime will show the final value;
+  in the audience view it must reset to zero and count up whenever the slide is
+  entered.
 - **Keep report pages optically centered.** Place the main content block as
   centered as possible between header and footer, especially when a page has
   sparse content. Avoid leaving a large empty lower half unless it is an
@@ -344,6 +355,10 @@ Before handing off a finished HTML deck:
 - For decks with 逐字稿, verify every slide has hidden notes and that notes use
   `<strong>` emphasis on key speaker cues. If notes are plain paragraphs with no
   emphasis markup, revise them before delivery.
+- For data-heavy decks, search rendered HTML for large static KPI text such as
+  `%`, `$`, `B`, `M`, or benchmark counts. Prominent visible metrics should be
+  `.counter` elements with `data-to`; run the deck in a browser and confirm the
+  values visibly reset to `0` and count up when entering the slide.
 - In S-key presenter mode, verify `<strong>` cues appear visually emphasized in
   the SPEAKER SCRIPT panel, normally orange and bold via runtime CSS. If a
   previously opened deck still shows plain text, clear or version-bump the
